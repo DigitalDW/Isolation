@@ -29,7 +29,12 @@ class Main extends Phaser.Scene {
     console.log(this.seconds);
   }
 
-  update() {}
+  update() {
+    if (this.seconds >= 10 && this.test.paused == false) {
+      console.log('stop');
+      this.test.paused = true;
+    }
+  }
 
   reset() {}
 }
