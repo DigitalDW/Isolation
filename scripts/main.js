@@ -14,9 +14,12 @@ class Main extends Phaser.Scene {
     this.rect;
     this.keys;
   }
-  preload() {}
+  preload() {
+    this.load.image('background', '../assets/background.png');
+  }
 
   create() {
+    this.add.image(300, 350, 'background');
     const timerEventConfig = {
       delay: 1000,
       repeat: 0,
