@@ -14,9 +14,14 @@ class Main extends Phaser.Scene {
 		this.character;
 		this.keys;
 	}
+
 	preload() {
 		this.load.image('background', '../assets/background.png');
-		this.load.image('character', '../assets/character.png');
+		this.load.spritesheet(
+			'character',
+			'../assets/character_sprite.png',
+			{ frameWidth: 90, frameHeight: 171 },
+		);
 	}
 
 	create() {
@@ -30,7 +35,25 @@ class Main extends Phaser.Scene {
 		};
 		this.eventSeconds = this.time.addEvent(timerEventConfig);
 
-		this.character = this.add.image(0, 0, 'character');
+		this.anims.create({
+			key: 'walk',
+			frameRate: 8,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 1,
+				end: 9,
+			}),
+		});
+
+		this.anims.create({
+			key: 'idle',
+			frameRate: 0,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 0,
+				end: 0,
+			}),
+		});
+
+		this.character = this.add.sprite(100, 100, 'character');
 
 		this.physics.add.existing(this.character);
 		this.character.body.setCollideWorldBounds(true);
@@ -43,10 +66,15 @@ class Main extends Phaser.Scene {
 			interact: Phaser.Input.Keyboard.KeyCodes.E,
 		});
 		this.keys.enabled = true;
+		this.keys.isDown = false;
 
 		if (this.keys.enabled) {
 			this.keys.interact.on('down', this.interact, this);
 		}
+	}
+
+	playAnim() {
+		this.character.play('walk', true);
 	}
 
 	oneSecond() {
@@ -88,17 +116,21 @@ class Main extends Phaser.Scene {
 		this.character.body.setVelocity(0);
 		if (this.keys.enabled) {
 			if (this.keys.left.isDown) {
-				this.character.body.setVelocityX(-300);
+				this.playAnim();
+				this.character.body.setVelocityX(-200);
 				this.character.flipX = true; // retourner l'image
 			} else if (this.keys.right.isDown) {
-				this.character.body.setVelocityX(300);
+				this.playAnim();
+				this.character.body.setVelocityX(200);
 				this.character.flipX = false;
-			}
-
-			if (this.keys.up.isDown) {
-				this.character.body.setVelocityY(-300);
+			} else if (this.keys.up.isDown) {
+				this.playAnim();
+				this.character.body.setVelocityY(-200);
 			} else if (this.keys.down.isDown) {
-				this.character.body.setVelocityY(300);
+				this.playAnim();
+				this.character.body.setVelocityY(200);
+			} else {
+				this.character.anims.play('idle');
 			}
 		}
 	}
