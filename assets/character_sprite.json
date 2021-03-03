@@ -1,0 +1,129 @@
+{ "frames": {
+   "character (character) 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 1.ase": {
+    "frame": { "x": 90, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 2.ase": {
+    "frame": { "x": 180, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 3.ase": {
+    "frame": { "x": 270, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 4.ase": {
+    "frame": { "x": 360, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 5.ase": {
+    "frame": { "x": 450, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 6.ase": {
+    "frame": { "x": 540, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 7.ase": {
+    "frame": { "x": 630, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 8.ase": {
+    "frame": { "x": 720, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 9.ase": {
+    "frame": { "x": 810, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 10.ase": {
+    "frame": { "x": 900, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 11.ase": {
+    "frame": { "x": 990, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 12.ase": {
+    "frame": { "x": 1080, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 13.ase": {
+    "frame": { "x": 1170, "y": 0, "w": 90, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 60, "y": 27, "w": 90, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "character_sprite.png",
+  "format": "RGBA8888",
+  "size": { "w": 1260, "h": 171 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Idle", "from": 0, "to": 5, "direction": "forward" },
+   { "name": "Walk", "from": 6, "to": 13, "direction": "forward" }
+  ],
+  "slices": [
+  ]
+ }
+}
