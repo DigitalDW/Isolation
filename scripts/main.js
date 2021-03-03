@@ -15,11 +15,18 @@ class Main extends Phaser.Scene {
 		this.keys;
 		this.bed;
 		this.bedCollision;
+		this.foodCabinet;
+		this.sink;
 	}
 
 	preload() {
 		this.load.image('background', '../assets/background.png');
 		this.load.image('bed', '../assets/bed.png');
+		this.load.image('cabinet', '../assets/food_cabinet.png');
+		this.load.spritesheet('sink', '../assets/sink.png', {
+			frameWidth: 130,
+			frameHeight: 150,
+		});
 		this.load.spritesheet(
 			'character',
 			'../assets/character_sprite.png',
@@ -30,8 +37,13 @@ class Main extends Phaser.Scene {
 	create() {
 		this.add.image(300, 350, 'background');
 		this.bed = this.physics.add.image(384, 225, 'bed');
-		this.bed.body.setCollideWorldBounds(true);
 		this.bed.body.immovable = true;
+
+		this.foodCabinet = this.physics.add.image(65, 425, 'cabinet');
+		this.foodCabinet.body.immovable = true;
+
+		this.sink = this.physics.add.image(65, 275, 'sink');
+		this.sink.body.immovable = true;
 
 		const timerEventConfig = {
 			delay: 1000,
@@ -59,7 +71,7 @@ class Main extends Phaser.Scene {
 			}),
 		});
 
-		this.character = this.add.sprite(100, 100, 'character');
+		this.character = this.add.sprite(225, 250, 'character');
 		this.character.play('idle', true);
 
 		this.physics.add.existing(this.character);
@@ -86,16 +98,40 @@ class Main extends Phaser.Scene {
 			null,
 			this,
 		);
+
+		this.physics.add.collider(
+			this.character,
+			this.foodCabinet,
+			this.hitFood,
+			null,
+			this,
+		);
+
+		this.physics.add.collider(
+			this.character,
+			this.sink,
+			this.hitSink,
+			null,
+			this,
+		);
 	}
 
 	hitBed() {
-		console.log(this.character.x);
+		console.log('bed!');
 		if (
 			this.character.x > 273.5 &&
 			this.character.y < this.bed.height + 25
 		) {
 			this.character.y = this.bed.height + 25;
 		}
+	}
+
+	hitFood() {
+		console.log('food!');
+	}
+
+	hitSink() {
+		console.log('sink!');
 	}
 
 	playAnim() {
@@ -107,6 +143,7 @@ class Main extends Phaser.Scene {
 		this.mental += 1 / this.duration;
 		this.needs.hunger--;
 		this.needs.sleep--;
+		console.log(this.physics.furthest(this.character));
 	}
 
 	interact(_, event) {
@@ -129,7 +166,8 @@ class Main extends Phaser.Scene {
 	}
 
 	update() {
-		if (this.character.y <= this.bed.height + 25) {
+		//console.log(this.physics.closest(this.character));
+		if (this.character.y <= this.bed.height + 24) {
 			this.bedCollision.active = true;
 		} else {
 			this.bedCollision.active = false;
