@@ -13,10 +13,13 @@ class Main extends Phaser.Scene {
 		this.action = 0;
 		this.character;
 		this.keys;
+		this.bed;
+		this.bedCollision;
 	}
 
 	preload() {
 		this.load.image('background', '../assets/background.png');
+		this.load.image('bed', '../assets/bed.png');
 		this.load.spritesheet(
 			'character',
 			'../assets/character_sprite.png',
@@ -26,6 +29,10 @@ class Main extends Phaser.Scene {
 
 	create() {
 		this.add.image(300, 350, 'background');
+		this.bed = this.physics.add.image(384, 225, 'bed');
+		this.bed.body.setCollideWorldBounds(true);
+		this.bed.body.immovable = true;
+
 		const timerEventConfig = {
 			delay: 1000,
 			repeat: 0,
@@ -37,23 +44,23 @@ class Main extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'walk',
-			frameRate: 8,
+			frameRate: 12,
 			frames: this.anims.generateFrameNumbers('character', {
-				start: 1,
-				end: 9,
+				start: 6,
 			}),
 		});
 
 		this.anims.create({
 			key: 'idle',
-			frameRate: 0,
+			frameRate: 6,
 			frames: this.anims.generateFrameNumbers('character', {
 				start: 0,
-				end: 0,
+				end: 5,
 			}),
 		});
 
 		this.character = this.add.sprite(100, 100, 'character');
+		this.character.play('idle', true);
 
 		this.physics.add.existing(this.character);
 		this.character.body.setCollideWorldBounds(true);
@@ -70,6 +77,24 @@ class Main extends Phaser.Scene {
 
 		if (this.keys.enabled) {
 			this.keys.interact.on('down', this.interact, this);
+		}
+
+		this.bedCollision = this.physics.add.collider(
+			this.character,
+			this.bed,
+			this.hitBed,
+			null,
+			this,
+		);
+	}
+
+	hitBed() {
+		console.log(this.character.x);
+		if (
+			this.character.x > 273.5 &&
+			this.character.y < this.bed.height + 25
+		) {
+			this.character.y = this.bed.height + 25;
 		}
 	}
 
@@ -104,6 +129,12 @@ class Main extends Phaser.Scene {
 	}
 
 	update() {
+		if (this.character.y <= this.bed.height + 25) {
+			this.bedCollision.active = true;
+		} else {
+			this.bedCollision.active = false;
+		}
+
 		if (
 			this.seconds / 60 >= this.duration / 60 &&
 			this.eventSeconds.paused == false
@@ -130,7 +161,7 @@ class Main extends Phaser.Scene {
 				this.playAnim();
 				this.character.body.setVelocityY(200);
 			} else {
-				this.character.anims.play('idle');
+				this.character.anims.play('idle', true);
 			}
 		}
 	}
