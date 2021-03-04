@@ -15,10 +15,10 @@ class Main extends Phaser.Scene {
 		this.keys;
 		this.bed;
 		this.bedCollision;
-		this.bedRect;
 		this.foodCabinet;
 		this.sink;
 		this.toilet;
+		this.flip = false;
 	}
 
 	preload() {
@@ -38,33 +38,6 @@ class Main extends Phaser.Scene {
 	}
 
 	create() {
-		//############//
-		// Add images //
-		//############//
-		this.add.image(300, 350, 'background');
-		this.bed = this.physics.add.image(384, 225, 'bed');
-		this.bed.body.immovable = true;
-
-		this.foodCabinet = this.physics.add.image(65, 425, 'cabinet');
-		this.foodCabinet.body.immovable = true;
-
-		this.sink = this.physics.add.image(65, 275, 'sink');
-		this.sink.body.immovable = true;
-
-		this.toilet = this.physics.add.image(65, 150, 'toilet');
-		this.toilet.body.immovable = true;
-
-		//######################//
-		// Collision rectangles //
-		//######################//
-		this.bedRect = this.add.rectangle(
-			384,
-			215,
-			160,
-			this.bed.height + 30,
-		);
-		this.physics.add.existing(this.bedRect);
-
 		//#######//
 		// Timer //
 		//#######//
@@ -97,12 +70,6 @@ class Main extends Phaser.Scene {
 			}),
 		});
 
-		this.character = this.add.sprite(225, 250, 'character');
-		this.character.play('idle', true);
-
-		this.physics.add.existing(this.character);
-		this.character.body.setCollideWorldBounds(true);
-
 		//######//
 		// Keys //
 		//######//
@@ -121,6 +88,58 @@ class Main extends Phaser.Scene {
 		}
 
 		//############//
+		// Add images //
+		//############//
+		this.add.image(300, 350, 'background');
+		this.bed = this.physics.add.image(384, 225, 'bed');
+		this.bed.body.immovable = true;
+
+		this.foodCabinet = this.physics.add.image(65, 425, 'cabinet');
+		this.foodCabinet.body.immovable = true;
+
+		this.sink = this.physics.add.image(65, 275, 'sink');
+		this.sink.body.immovable = true;
+
+		this.toilet = this.physics.add.image(65, 150, 'toilet');
+		this.toilet.body.immovable = true;
+
+		//###############//
+		// Add character //
+		//###############//
+		this.character = this.add.sprite(225, 250, 'character');
+		this.character.play('idle', true);
+
+		this.physics.add.existing(this.character);
+		this.character.body.setCollideWorldBounds(true);
+
+		//#########//
+		// Overlap //
+		//#########//
+		this.charCircle = this.add.circle(0, 0, 1);
+		this.physics.add.existing(this.charCircle);
+
+		[this.bed, this.foodCabinet, this.sink, this.toilet].forEach(
+			(elem) => {
+				const rect = this.add.rectangle(
+					elem.x,
+					elem.y,
+					elem.width + 25,
+					elem.height,
+				);
+				rect.name = elem.texture.key;
+				this.physics.add.existing(rect);
+
+				this.physics.add.overlap(
+					this.charCircle,
+					rect,
+					this.test,
+					null,
+					this,
+				);
+			},
+		);
+
+		//############//
 		// Collitions //
 		//############//
 		this.bedCollision = this.physics.add.collider(
@@ -130,12 +149,10 @@ class Main extends Phaser.Scene {
 		this.physics.add.collider(this.character, this.foodCabinet);
 		this.physics.add.collider(this.character, this.sink);
 		this.physics.add.collider(this.character, this.toilet);
-
-		this.physics.add.overlap(this.character, this.bedRect, this.test);
 	}
 
-	test() {
-		console.log('bed!');
+	test(_, t) {
+		console.log(t.name);
 	}
 
 	playAnim() {
@@ -147,7 +164,6 @@ class Main extends Phaser.Scene {
 		this.mental += 1 / this.duration;
 		this.needs.hunger--;
 		this.needs.sleep--;
-		console.log(this.physics.furthest(this.character));
 	}
 
 	interact(_, event) {
@@ -186,15 +202,19 @@ class Main extends Phaser.Scene {
 
 		// Mouvement continu
 		this.character.body.setVelocity(0);
+		this.charCircle.x = this.character.x + (this.flip ? -40 : 40);
+		this.charCircle.y = this.character.y + 25;
 		if (this.keys.enabled) {
 			if (this.keys.left.isDown) {
 				this.playAnim();
 				this.character.body.setVelocityX(-200);
 				this.character.flipX = true; // retourner l'image
+				this.flip = true;
 			} else if (this.keys.right.isDown) {
 				this.playAnim();
 				this.character.body.setVelocityX(200);
 				this.character.flipX = false;
+				this.flip = false;
 			} else if (this.keys.up.isDown) {
 				this.playAnim();
 				this.character.body.setVelocityY(
