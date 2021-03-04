@@ -164,6 +164,25 @@ class Main extends Phaser.Scene {
 
 	interact(_, event) {
 		this.keys.enabled = false;
+
+		// ---- IMPORTANT! ---- //
+		// Detection of objects //
+		// ---- IMPORTANT! ---- //
+		let over = false;
+		this.rects.forEach((r) => {
+			const t = this.physics.overlap(
+				this.charCircle,
+				r,
+				this.test,
+				null,
+				this,
+			);
+			over ||= t;
+		});
+		if (!over) {
+			this.detected = null;
+		}
+
 		const currentHunger = this.needs.hunger;
 		setTimeout(
 			() => {
@@ -225,21 +244,6 @@ class Main extends Phaser.Scene {
 			} else {
 				this.character.anims.play('idle', true);
 			}
-		}
-
-		let over = false;
-		this.rects.forEach((r) => {
-			const t = this.physics.overlap(
-				this.charCircle,
-				r,
-				this.test,
-				null,
-				this,
-			);
-			over ||= t;
-		});
-		if (!over) {
-			this.detected = null;
 		}
 	}
 
