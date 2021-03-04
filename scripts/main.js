@@ -19,6 +19,8 @@ class Main extends Phaser.Scene {
 		this.sink;
 		this.toilet;
 		this.flip = false;
+		this.detected = null;
+		this.rects = [];
 	}
 
 	preload() {
@@ -127,15 +129,9 @@ class Main extends Phaser.Scene {
 					elem.height,
 				);
 				rect.name = elem.texture.key;
-				this.physics.add.existing(rect);
 
-				this.physics.add.overlap(
-					this.charCircle,
-					rect,
-					this.test,
-					null,
-					this,
-				);
+				this.rects.push(rect);
+				this.physics.add.existing(rect);
 			},
 		);
 
@@ -152,7 +148,7 @@ class Main extends Phaser.Scene {
 	}
 
 	test(_, t) {
-		console.log(t.name);
+		this.detected = t.name;
 	}
 
 	playAnim() {
@@ -229,6 +225,21 @@ class Main extends Phaser.Scene {
 			} else {
 				this.character.anims.play('idle', true);
 			}
+		}
+
+		let over = false;
+		this.rects.forEach((r) => {
+			const t = this.physics.overlap(
+				this.charCircle,
+				r,
+				this.test,
+				null,
+				this,
+			);
+			over ||= t;
+		});
+		if (!over) {
+			this.detected = null;
 		}
 	}
 
