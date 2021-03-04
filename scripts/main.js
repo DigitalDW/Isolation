@@ -15,6 +15,7 @@ class Main extends Phaser.Scene {
 		this.keys;
 		this.bed;
 		this.bedCollision;
+		this.bedRect;
 		this.foodCabinet;
 		this.sink;
 		this.toilet;
@@ -37,6 +38,9 @@ class Main extends Phaser.Scene {
 	}
 
 	create() {
+		//############//
+		// Add images //
+		//############//
 		this.add.image(300, 350, 'background');
 		this.bed = this.physics.add.image(384, 225, 'bed');
 		this.bed.body.immovable = true;
@@ -50,6 +54,20 @@ class Main extends Phaser.Scene {
 		this.toilet = this.physics.add.image(65, 150, 'toilet');
 		this.toilet.body.immovable = true;
 
+		//######################//
+		// Collision rectangles //
+		//######################//
+		this.bedRect = this.add.rectangle(
+			384,
+			215,
+			160,
+			this.bed.height + 30,
+		);
+		this.physics.add.existing(this.bedRect);
+
+		//#######//
+		// Timer //
+		//#######//
 		const timerEventConfig = {
 			delay: 1000,
 			repeat: 0,
@@ -59,6 +77,9 @@ class Main extends Phaser.Scene {
 		};
 		this.eventSeconds = this.time.addEvent(timerEventConfig);
 
+		//############//
+		// Animations //
+		//############//
 		this.anims.create({
 			key: 'walk',
 			frameRate: 12,
@@ -82,6 +103,9 @@ class Main extends Phaser.Scene {
 		this.physics.add.existing(this.character);
 		this.character.body.setCollideWorldBounds(true);
 
+		//######//
+		// Keys //
+		//######//
 		this.keys = this.input.keyboard.addKeys({
 			up: Phaser.Input.Keyboard.KeyCodes.W,
 			down: Phaser.Input.Keyboard.KeyCodes.S,
@@ -96,53 +120,22 @@ class Main extends Phaser.Scene {
 			this.keys.interact.on('down', this.interact, this);
 		}
 
+		//############//
+		// Collitions //
+		//############//
 		this.bedCollision = this.physics.add.collider(
 			this.character,
 			this.bed,
-			this.hitBed,
-			null,
-			this,
 		);
+		this.physics.add.collider(this.character, this.foodCabinet);
+		this.physics.add.collider(this.character, this.sink);
+		this.physics.add.collider(this.character, this.toilet);
 
-		this.physics.add.collider(
-			this.character,
-			this.foodCabinet,
-			this.hitFood,
-			null,
-			this,
-		);
-
-		this.physics.add.collider(
-			this.character,
-			this.sink,
-			this.hitSink,
-			null,
-			this,
-		);
-
-		this.physics.add.collider(
-			this.character,
-			this.toilet,
-			this.hitToilet,
-			null,
-			this,
-		);
+		this.physics.add.overlap(this.character, this.bedRect, this.test);
 	}
 
-	hitBed() {
+	test() {
 		console.log('bed!');
-	}
-
-	hitFood() {
-		console.log('food!');
-	}
-
-	hitSink() {
-		console.log('sink!');
-	}
-
-	hitToilet() {
-		console.log('toilet!');
 	}
 
 	playAnim() {
@@ -204,15 +197,12 @@ class Main extends Phaser.Scene {
 				this.character.flipX = false;
 			} else if (this.keys.up.isDown) {
 				this.playAnim();
-				if (
+				this.character.body.setVelocityY(
 					this.character.x > 273.5 &&
-					this.character.y < this.bed.height + 40
-				) {
-					this.character.body.setVelocityY(0);
-					console.log('beeed');
-				} else {
-					this.character.body.setVelocityY(-200);
-				}
+						this.character.y < this.bed.height + 40
+						? 0
+						: -200,
+				);
 			} else if (this.keys.down.isDown) {
 				this.playAnim();
 				this.character.body.setVelocityY(200);
