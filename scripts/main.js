@@ -17,6 +17,7 @@ class Main extends Phaser.Scene {
 		this.bedCollision;
 		this.foodCabinet;
 		this.sink;
+		this.toilet;
 	}
 
 	preload() {
@@ -27,6 +28,7 @@ class Main extends Phaser.Scene {
 			frameWidth: 130,
 			frameHeight: 150,
 		});
+		this.load.image('toilet', '../assets/toilet.png');
 		this.load.spritesheet(
 			'character',
 			'../assets/character_sprite.png',
@@ -44,6 +46,9 @@ class Main extends Phaser.Scene {
 
 		this.sink = this.physics.add.image(65, 275, 'sink');
 		this.sink.body.immovable = true;
+
+		this.toilet = this.physics.add.image(65, 150, 'toilet');
+		this.toilet.body.immovable = true;
 
 		const timerEventConfig = {
 			delay: 1000,
@@ -114,16 +119,18 @@ class Main extends Phaser.Scene {
 			null,
 			this,
 		);
+
+		this.physics.add.collider(
+			this.character,
+			this.toilet,
+			this.hitToilet,
+			null,
+			this,
+		);
 	}
 
 	hitBed() {
 		console.log('bed!');
-		if (
-			this.character.x > 273.5 &&
-			this.character.y < this.bed.height + 25
-		) {
-			this.character.y = this.bed.height + 25;
-		}
 	}
 
 	hitFood() {
@@ -132,6 +139,10 @@ class Main extends Phaser.Scene {
 
 	hitSink() {
 		console.log('sink!');
+	}
+
+	hitToilet() {
+		console.log('toilet!');
 	}
 
 	playAnim() {
@@ -166,7 +177,6 @@ class Main extends Phaser.Scene {
 	}
 
 	update() {
-		//console.log(this.physics.closest(this.character));
 		if (this.character.y <= this.bed.height + 24) {
 			this.bedCollision.active = true;
 		} else {
@@ -194,7 +204,15 @@ class Main extends Phaser.Scene {
 				this.character.flipX = false;
 			} else if (this.keys.up.isDown) {
 				this.playAnim();
-				this.character.body.setVelocityY(-200);
+				if (
+					this.character.x > 273.5 &&
+					this.character.y < this.bed.height + 40
+				) {
+					this.character.body.setVelocityY(0);
+					console.log('beeed');
+				} else {
+					this.character.body.setVelocityY(-200);
+				}
 			} else if (this.keys.down.isDown) {
 				this.playAnim();
 				this.character.body.setVelocityY(200);
