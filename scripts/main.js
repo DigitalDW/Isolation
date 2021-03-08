@@ -1,15 +1,17 @@
 class Main extends Phaser.Scene {
 	constructor() {
 		super('main'); // la clef d'accès à la scène
-		this.duration = 120;
+		this.duration = 2 * 60; // [x] mintues * 60
 		this.mental = 1;
 		this.lag = 1;
 		this.needs = {
 			sleep: 60,
 			hunger: 30,
 		};
-		this.eventSeconds;
+		this.elapsedTime;
 		this.seconds = 0;
+		this.minute = 0;
+		this.hour = 15;
 		this.action = 0;
 		this.character;
 		this.keys;
@@ -43,14 +45,23 @@ class Main extends Phaser.Scene {
 		//#######//
 		// Timer //
 		//#######//
-		const timerEventConfig = {
+		const elapsedTimeConfig = {
 			delay: 1000,
 			repeat: 0,
 			loop: true,
-			callback: this.oneSecond,
+			callback: this.realTime,
 			callbackScope: this,
 		};
-		this.eventSeconds = this.time.addEvent(timerEventConfig);
+		this.elapsedTime = this.time.addEvent(elapsedTimeConfig);
+
+		const relativeTimeConfig = {
+			delay: 1000,
+			repeat: 0,
+			loop: true,
+			callback: this.feltTime,
+			callbackScope: this,
+		};
+		this.relativeTime = this.time.addEvent(relativeTimeConfig);
 
 		//############//
 		// Animations //
@@ -155,11 +166,23 @@ class Main extends Phaser.Scene {
 		this.character.play('walk', true);
 	}
 
-	oneSecond() {
+	realTime() {
 		this.seconds++;
-		this.mental += 1 / this.duration;
+		/*this.mental += 1 / this.duration;
 		this.needs.hunger--;
-		this.needs.sleep--;
+		this.needs.sleep--;*/
+	}
+
+	feltTime() {
+		this.minute++;
+		if (this.minute != 0 && this.minute % 60 == 0) {
+			this.minute = 0;
+			this.hour++;
+			if (this.hour != 0 && this.hour % 24 == 0) {
+				this.hour = 0;
+			}
+		}
+		console.log(`${this.hour}:${this.minute}`);
 	}
 
 	interact(_, event) {
@@ -183,10 +206,10 @@ class Main extends Phaser.Scene {
 			this.detected = null;
 		}
 
-		const currentHunger = this.needs.hunger;
+		/*const currentHunger = this.needs.hunger;
 		setTimeout(
 			() => {
-				this.action = this.seconds - this.action;
+				this.action = this.minute - this.action;
 				let deviation = 0 - currentHunger;
 				let modification = deviation / (30 * this.lag);
 				this.lag += (modification / 2) * this.mental;
@@ -197,7 +220,7 @@ class Main extends Phaser.Scene {
 			},
 			2000,
 			currentHunger,
-		);
+		);*/
 	}
 
 	update() {
@@ -209,10 +232,11 @@ class Main extends Phaser.Scene {
 
 		if (
 			this.seconds / 60 >= this.duration / 60 &&
-			this.eventSeconds.paused == false
+			this.elapsedTime.paused == false
 		) {
 			console.log('stop');
-			this.eventSeconds.paused = true;
+			this.elapsedTime.paused = true;
+			this.relativeTime.paused = true;
 		}
 
 		// Mouvement continu
