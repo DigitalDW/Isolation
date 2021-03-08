@@ -2,11 +2,35 @@ class Main extends Phaser.Scene {
 	constructor() {
 		super('main'); // la clef d'accès à la scène
 		this.duration = 2 * 60; // [x] mintues * 60
-		this.mental = 1;
-		this.lag = 1;
-		this.needs = {
-			sleep: 60,
-			hunger: 30,
+		this.timings = {
+			food: [
+				{
+					start: [7, 0],
+					end: [8, 0],
+				},
+				{
+					start: [11, 30],
+					end: [12, 30],
+				},
+				{
+					start: [18, 0],
+					end: [19, 0],
+				},
+			],
+			goToSleep: [
+				{
+					start: [22, 0],
+					end: [0, 0],
+				},
+			],
+			wakeUp: [
+				{
+					start: [7, 0],
+					end: [8, 0],
+				},
+			],
+			meal: 2, // 0 = dejeuner, 1 = diner, 2 = souper
+			inBed: true,
 		};
 		this.elapsedTime;
 		this.relativeTime;
@@ -188,8 +212,6 @@ class Main extends Phaser.Scene {
 	}
 
 	interact(_, event) {
-		this.keys.enabled = false;
-
 		// ---- IMPORTANT! ---- //
 		// Detection of objects //
 		// ---- IMPORTANT! ---- //
@@ -210,7 +232,21 @@ class Main extends Phaser.Scene {
 
 		// IMPORTANT: on peut ralentir/accelerer le delai avec this.relativeTime.delay = ...
 
-		/*const currentHunger = this.needs.hunger;
+		console.log(this.detected);
+		let timing;
+		if (this.detected == 'cabinet') {
+			const meal = this.timings.meal;
+			this.timings.meal = (meal + 1) % 3 == 0 ? 0 : meal + 1; // change meal timing
+			timing = this.timings.food[meal];
+			this.characterAction(timing, 'eat');
+		} else if (this.detected == 'bed') {
+			const sleeping = this.timings.inBed;
+			this.timing.inBed = !this.timings.inBed;
+			timing = !inBed ? this.timings.goToSleep : this.timings.wakeUp;
+			this.characterAction(timing, !inBed ? 'goToSleep' : 'wakeUp');
+		}
+		/*this.keys.enabled = false;
+		const currentHunger = this.needs.hunger;
 		setTimeout(
 			() => {
 				this.action = this.minute - this.action;
@@ -225,6 +261,15 @@ class Main extends Phaser.Scene {
 			2000,
 			currentHunger,
 		);*/
+	}
+
+	characterAction(timing, action) {
+		if (
+			(this.hour == timing.start[0] &&
+				this.minute >= timing.start[1]) ||
+			(this.hour == timing.end[0] && this.minute <= timing.end[1])
+		) {
+		}
 	}
 
 	update() {
@@ -246,7 +291,7 @@ class Main extends Phaser.Scene {
 		// Mouvement continu
 		this.character.body.setVelocity(0);
 		this.charCircle.x = this.character.x + (this.flip ? -40 : 40);
-		this.charCircle.y = this.character.y + 25;
+		this.charCircle.y = this.character.y;
 		if (this.keys.enabled) {
 			if (this.keys.left.isDown) {
 				this.playAnim();
