@@ -9,6 +9,8 @@ class Main extends Phaser.Scene {
 			hunger: 30,
 		};
 		this.elapsedTime;
+		this.relativeTime;
+		this.relativeTimeDelay = 1000;
 		this.seconds = 0;
 		this.minute = 0;
 		this.hour = 15;
@@ -205,6 +207,8 @@ class Main extends Phaser.Scene {
 		if (!over) {
 			this.detected = null;
 		}
+
+		// IMPORTANT: on peut ralentir/accelerer le delai avec this.relativeTime.delay = ...
 
 		/*const currentHunger = this.needs.hunger;
 		setTimeout(
