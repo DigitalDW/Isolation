@@ -26,7 +26,7 @@ class Main extends Phaser.Scene {
 				end: 8,
 			},
 			meal: 2, // 0 = doit dejeuner, 1 = doit diner, 2 = doit souper, 3 = a soupe, (3+ plus que 3 repas en 1 jour)
-			inBed: true,
+			inBed: false,
 		};
 		this.elapsedTime;
 		this.relativeTime;
@@ -59,7 +59,7 @@ class Main extends Phaser.Scene {
 		this.load.spritesheet(
 			'character',
 			'../assets/character_sprite.png',
-			{ frameWidth: 93, frameHeight: 171 },
+			{ frameWidth: 95, frameHeight: 171 },
 		);
 	}
 
@@ -111,7 +111,17 @@ class Main extends Phaser.Scene {
 			frameRate: 8,
 			frames: this.anims.generateFrameNumbers('character', {
 				start: 14,
-				end: 57,
+				end: 54,
+			}),
+		});
+
+		this.anims.create({
+			key: 'sleep',
+			frameRate: 5,
+			repeat: -1,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 55,
+				end: 62,
 			}),
 		});
 
@@ -218,10 +228,9 @@ class Main extends Phaser.Scene {
 	}
 
 	interact(_, event) {
-		if (!this.keys.enabled) {
+		if (!this.keys.enabled && !this.timings.inBed) {
 			return;
 		}
-
 		// ---- IMPORTANT! ---- //
 		// Detection of objects //
 		// ---- IMPORTANT! ---- //
@@ -245,6 +254,7 @@ class Main extends Phaser.Scene {
 		console.log(this.detected);
 		let timing;
 		if (this.detected == 'cabinet') {
+			this.character.x -= 25;
 			this.character.play('drink');
 			const meal = this.timings.meal;
 			this.timings.meal++;
@@ -253,52 +263,61 @@ class Main extends Phaser.Scene {
 				: { start: this.hour + 1, end: this.hour + 2 };
 			this.characterAction(timing, 'eat');
 		} else if (this.detected == 'bed') {
-			this.timings.inBed = !this.timings.inBed;
-			timing = !this.timings.inBed
-				? this.timings.goToSleep
-				: this.timings.wakeUp;
+			timing = this.timings.inBed
+				? this.timings.wakeUp
+				: this.timings.goToSleep;
 			this.characterAction(
 				timing,
-				!this.timings.inBed ? 'goToSleep' : 'wakeUp',
+				this.timings.inBed ? 'wakeUp' : 'goToSleep',
 			);
+			this.timings.inBed = !this.timings.inBed;
 		}
 	}
 
 	characterAction(timing, action) {
+		let deviation = 0;
+		let h = 0;
+		let m = 0;
+
 		if (action == 'eat') {
 			this.character.once(
 				'animationcomplete',
 				function () {
 					this.keys.enabled = true;
+					this.character.x += 25;
 				},
 				this,
 			);
-		}
-		let deviation = 0;
-		let h = 0;
-		let m = 0;
-
-		if (action == 'goToSleep') {
+		} else if (action == 'goToSleep') {
+			this.coords = [this.character.x, this.character.y];
+			this.character.x = this.bed.x + 17;
+			this.character.y = this.bed.y - 36;
+			this.character.play('sleep');
 			let mealsVariation = 0;
 			if (!this.forceWakeUp) {
 				mealsVariation = this.timings.meal - 3; // negatif = pas assez de repas, positif = trop de repas, 0 = assez de repas
 			}
-			deviation += mealsVariation * 50;
+			deviation += mealsVariation * 75;
+		} else if (action == 'wakeUp') {
+			this.keys.enabled = true;
+			this.character.x = this.coords[0];
+			this.character.y = this.coords[1];
 		}
-		console.log(deviation);
 
 		if (this.hour < timing.start) {
 			h = timing.start - 1 - this.hour;
 			m = 60 - this.minute + h * 60;
-			deviation -= m * (action == 'eat' ? 15 : 10);
+			deviation -= m * (action == 'eat' ? 15 : 25);
 		} else if (this.hour >= timing.end) {
 			h = this.hour - timing.end;
 			m = this.minute + h * 60;
-			deviation += m * (action == 'eat' ? 15 : 10);
+			deviation += m * (action == 'eat' ? 15 : 25);
 		} else {
 			this.relativeTimeDelay = this.relativeTimeDelay;
 			deviation = 0;
 		}
+
+		deviation = deviation / 75; // attenuer les effets du décalage
 		this.relativeTimeDelay += deviation;
 		this.relativeTime.delay = this.relativeTimeDelay;
 		console.log(this.relativeTimeDelay);
