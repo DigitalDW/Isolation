@@ -59,7 +59,7 @@ class Main extends Phaser.Scene {
 		this.load.spritesheet(
 			'character',
 			'../assets/character_sprite.png',
-			{ frameWidth: 90, frameHeight: 171 },
+			{ frameWidth: 93, frameHeight: 171 },
 		);
 	}
 
@@ -89,19 +89,29 @@ class Main extends Phaser.Scene {
 		// Animations //
 		//############//
 		this.anims.create({
-			key: 'walk',
-			frameRate: 12,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 6,
-			}),
-		});
-
-		this.anims.create({
 			key: 'idle',
 			frameRate: 6,
 			frames: this.anims.generateFrameNumbers('character', {
 				start: 0,
 				end: 5,
+			}),
+		});
+
+		this.anims.create({
+			key: 'walk',
+			frameRate: 12,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 6,
+				end: 13,
+			}),
+		});
+
+		this.anims.create({
+			key: 'drink',
+			frameRate: 8,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 14,
+				end: 57,
 			}),
 		});
 
@@ -208,9 +218,14 @@ class Main extends Phaser.Scene {
 	}
 
 	interact(_, event) {
+		if (!this.keys.enabled) {
+			return;
+		}
+
 		// ---- IMPORTANT! ---- //
 		// Detection of objects //
 		// ---- IMPORTANT! ---- //
+
 		let over = false;
 		this.rects.forEach((r) => {
 			const t = this.physics.overlap(
@@ -230,6 +245,7 @@ class Main extends Phaser.Scene {
 		console.log(this.detected);
 		let timing;
 		if (this.detected == 'cabinet') {
+			this.character.play('drink');
 			const meal = this.timings.meal;
 			this.timings.meal++;
 			timing = !(meal > 2)
@@ -249,8 +265,15 @@ class Main extends Phaser.Scene {
 	}
 
 	characterAction(timing, action) {
-		setTimeout(() => (this.keys.enabled = true), 2000);
-
+		if (action == 'eat') {
+			this.character.once(
+				'animationcomplete',
+				function () {
+					this.keys.enabled = true;
+				},
+				this,
+			);
+		}
 		let deviation = 0;
 		let h = 0;
 		let m = 0;
