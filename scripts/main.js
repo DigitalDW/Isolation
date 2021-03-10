@@ -33,7 +33,7 @@ class Main extends Phaser.Scene {
 
 		// Character stats
 		this.characterStats = {
-			meal: 2, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = doit has to eat diner, 3+ = more meals
+			meal: 3, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = doit has to eat diner, 3+ = more meals
 			inBed: false,
 			day: 1,
 		};
@@ -231,9 +231,6 @@ class Main extends Phaser.Scene {
 
 	realTime() {
 		this.seconds++;
-		/*this.mental += 1 / this.duration;
-		this.needs.hunger--;
-		this.needs.sleep--;*/
 	}
 
 	feltTime() {
@@ -253,10 +250,8 @@ class Main extends Phaser.Scene {
 		if (!this.keys.enabled && !this.characterStats.inBed) {
 			return;
 		}
-		// ---- IMPORTANT! ---- //
-		// Detection of objects //
-		// ---- IMPORTANT! ---- //
 
+		// Detection of objects
 		let over = false;
 		this.rects.forEach((r) => {
 			const t = this.physics.overlap(
@@ -309,19 +304,20 @@ class Main extends Phaser.Scene {
 				},
 				this,
 			);
-			deviation += this.normalDeviation(timing, action);
+			deviation += this.eatDeviation(timing);
 		} else if (action == 'goToSleep') {
 			this.coords = [this.character.x, this.character.y];
 			this.character.x = this.bed.x + 17;
 			this.character.y = this.bed.y - 36;
-			this.characterStats.day++;
 			this.character.play('sleep');
 			deviation += this.sleepDeviation(timing, day);
 		} else if (action == 'wakeUp') {
 			this.keys.enabled = true;
 			this.character.x = this.coords[0];
 			this.character.y = this.coords[1];
-			deviation += this.normalDeviation(timing, action);
+			this.characterStats.day++;
+			this.characterStats.meal = 0;
+			deviation += this.wakeUpDeviation(timing);
 		}
 
 		deviation = deviation / 75; // attenuer les effets du décalage
@@ -332,18 +328,18 @@ class Main extends Phaser.Scene {
 		// IMPORTANT: on peut ralentir/accelerer le delai avec this.relativeTime.delay = ...
 	}
 
-	eatDeviation(timing, action) {
+	eatDeviation(timing) {
 		let dev = 0;
 		let h = 0;
 		let m = 0;
 		if (this.hour < timing.start) {
 			h = timing.start - 1 - this.hour;
 			m = 60 - this.minute + h * 60;
-			dev -= m * (action == 'eat' ? 15 : 25);
+			dev -= m * 15;
 		} else if (this.hour >= timing.end) {
 			h = this.hour - timing.end;
 			m = this.minute + h * 60;
-			dev += m * (action == 'eat' ? 15 : 25);
+			dev += m * 15;
 		}
 		return dev;
 	}
@@ -367,6 +363,30 @@ class Main extends Phaser.Scene {
 			m = this.minute + h * 60;
 			dev += m * 25;
 		}
+		return dev;
+	}
+
+	wakeUpDeviation(timing) {
+		const currDay = this.day;
+		const day = this.characterStats.day;
+		let dev = 0;
+		let h = 0;
+		let m = 0;
+		if (this.hour < timing.start && this.day == day) {
+			h = timing.start - 1 - this.hour;
+			m = 60 - this.minute + h * 60;
+			dev -= m * 20;
+		} else if (this.hour >= timing.end && this.day == day) {
+			h = this.hour - timing.end;
+			m = this.minute + h * 60;
+			dev += m * 10;
+		} else {
+			h = 23 - this.hour + timing.start;
+			m = 60 - this.minute + h * 60;
+			dev -= m * 30;
+		}
+		this.day += this.day + 1 == currDay ? 0 : 1;
+		this.hour = 7;
 		return dev;
 	}
 
