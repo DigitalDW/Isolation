@@ -11,16 +11,39 @@ class Main extends Phaser.Scene {
     this.eventSeconds;
     this.seconds = 0;
     this.action = 0;
-    this.rect;
+    this.character;
     this.keys;
+    this.bed;
+    this.bedCollision;
+    this.foodCabinet;
+    this.sink;
   }
+
   preload() {
     this.load.image('background', '../assets/background.png');
-    this.load.image('michael', '../assets/michael.png');
+    this.load.image('bed', '../assets/bed.png');
+    this.load.image('cabinet', '../assets/food_cabinet.png');
+    this.load.spritesheet('sink', '../assets/sink.png', {
+      frameWidth: 130,
+      frameHeight: 150,
+    });
+    this.load.spritesheet('character', '../assets/character_sprite.png', {
+      frameWidth: 90,
+      frameHeight: 171,
+    });
   }
 
   create() {
     this.add.image(300, 350, 'background');
+    this.bed = this.physics.add.image(384, 225, 'bed');
+    this.bed.body.immovable = true;
+
+    this.foodCabinet = this.physics.add.image(65, 425, 'cabinet');
+    this.foodCabinet.body.immovable = true;
+
+    this.sink = this.physics.add.image(65, 275, 'sink');
+    this.sink.body.immovable = true;
+
     const timerEventConfig = {
       delay: 1000,
       repeat: 0,
@@ -30,33 +53,28 @@ class Main extends Phaser.Scene {
     };
     this.eventSeconds = this.time.addEvent(timerEventConfig);
 
-    this.rect = this.add.image(300, 350, 'michael');
+    this.anims.create({
+      key: 'walk',
+      frameRate: 12,
+      frames: this.anims.generateFrameNumbers('character', {
+        start: 6,
+      }),
+    });
 
-    this.physics.add.existing(this.rect);
-    this.rect.body.setCollideWorldBounds(true);
+    this.anims.create({
+      key: 'idle',
+      frameRate: 6,
+      frames: this.anims.generateFrameNumbers('character', {
+        start: 0,
+        end: 5,
+      }),
+    });
 
-    /*
-    // Mouvement discontinu
-    this.input.keyboard.on(
-      'keyup',
-      function (event) {
-        switch (event.keyCode) {
-          case 65: // touche A
-            this.rect.x -= 20;
-            break;
-          case 68: // touche D
-            this.rect.x += 20;
-            break;
-          case 87: // touche W
-            this.rect.y -= 20;
-            break;
-          case 83: // touche S
-            this.rect.y += 20;
-            break;
-        }
-      },
-      this
-    );*/
+    this.character = this.add.sprite(225, 250, 'character');
+    this.character.play('idle', true);
+
+    this.physics.add.existing(this.character);
+    this.character.body.setCollideWorldBounds(true);
 
     this.keys = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -66,14 +84,54 @@ class Main extends Phaser.Scene {
       interact: Phaser.Input.Keyboard.KeyCodes.E,
     });
     this.keys.enabled = true;
+    this.keys.isDown = false;
 
     if (this.keys.enabled) {
       this.keys.interact.on('down', this.interact, this);
     }
-    // this.rect.body.velocity.x = 100;
-    // this.rect.body.velocity.y = 100;
-    // this.rect.body.bounce.x = 1;
-    // this.rect.body.bounce.y = 1;
+
+    this.bedCollision = this.physics.add.collider(
+      this.character,
+      this.bed,
+      this.hitBed,
+      null,
+      this
+    );
+
+    this.physics.add.collider(
+      this.character,
+      this.foodCabinet,
+      this.hitFood,
+      null,
+      this
+    );
+
+    this.physics.add.collider(
+      this.character,
+      this.sink,
+      this.hitSink,
+      null,
+      this
+    );
+  }
+
+  hitBed() {
+    console.log('bed!');
+    if (this.character.x > 273.5 && this.character.y < this.bed.height + 25) {
+      this.character.y = this.bed.height + 25;
+    }
+  }
+
+  hitFood() {
+    console.log('food!');
+  }
+
+  hitSink() {
+    console.log('sink!');
+  }
+
+  playAnim() {
+    this.character.play('walk', true);
   }
 
   oneSecond() {
@@ -81,6 +139,7 @@ class Main extends Phaser.Scene {
     this.mental += 1 / this.duration;
     this.needs.hunger--;
     this.needs.sleep--;
+    console.log(this.physics.furthest(this.character));
   }
 
   interact(_, event) {
@@ -103,6 +162,13 @@ class Main extends Phaser.Scene {
   }
 
   update() {
+    //console.log(this.physics.closest(this.character));
+    if (this.character.y <= this.bed.height + 24) {
+      this.bedCollision.active = true;
+    } else {
+      this.bedCollision.active = false;
+    }
+
     if (
       this.seconds / 60 >= this.duration / 60 &&
       this.eventSeconds.paused == false
@@ -112,18 +178,24 @@ class Main extends Phaser.Scene {
     }
 
     // Mouvement continu
-    this.rect.body.setVelocity(0);
+    this.character.body.setVelocity(0);
     if (this.keys.enabled) {
       if (this.keys.left.isDown) {
-        this.rect.body.setVelocityX(-300);
+        this.playAnim();
+        this.character.body.setVelocityX(-200);
+        this.character.flipX = true; // retourner l'image
       } else if (this.keys.right.isDown) {
-        this.rect.body.setVelocityX(300);
-      }
-
-      if (this.keys.up.isDown) {
-        this.rect.body.setVelocityY(-300);
+        this.playAnim();
+        this.character.body.setVelocityX(200);
+        this.character.flipX = false;
+      } else if (this.keys.up.isDown) {
+        this.playAnim();
+        this.character.body.setVelocityY(-200);
       } else if (this.keys.down.isDown) {
-        this.rect.body.setVelocityY(300);
+        this.playAnim();
+        this.character.body.setVelocityY(200);
+      } else {
+        this.character.anims.play('idle', true);
       }
     }
   }
