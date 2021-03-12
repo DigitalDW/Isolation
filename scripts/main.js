@@ -16,6 +16,7 @@ class Main extends Phaser.Scene {
   }
   preload() {
     this.load.image('background', '../assets/background.png');
+    this.load.image('michael', '../assets/michael.png');
   }
 
   create() {
@@ -29,7 +30,7 @@ class Main extends Phaser.Scene {
     };
     this.eventSeconds = this.time.addEvent(timerEventConfig);
 
-    this.rect = this.add.rectangle(200, 200, 100, 150, 0xffffff);
+    this.rect = this.add.image(300, 350, 'michael');
 
     this.physics.add.existing(this.rect);
     this.rect.body.setCollideWorldBounds(true);
