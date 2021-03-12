@@ -81,11 +81,6 @@ class Main extends Phaser.Scene {
       frameWidth: 95,
       frameHeight: 171,
     });
-    this.load.audio('footstep_1', '../assets/audio/footstep_1.wav');
-    this.load.audio('footstep_2', '../assets/audio/footstep_2.wav');
-    this.load.audio('footstep_3', '../assets/audio/footstep_3.wav');
-    this.load.audio('footstep_4', '../assets/audio/footstep_4.wav');
-    this.load.audio('footstep_5', '../assets/audio/footstep_5.wav');
     this.load.audio('footsteps', [
       '../assets/audio/footstep.ogg',
       '../assets/audio/footstep.mp3',
