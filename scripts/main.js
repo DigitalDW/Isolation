@@ -36,8 +36,9 @@ class Main extends Phaser.Scene {
 			meal: 3, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = doit has to eat diner, 3+ = more meals
 			inBed: false,
 			day: 1,
-			toilet: 2, // number of times the character was sat on the toilet. 2 is ideal.
+			toilet: 2, // number of times the character was sat on the toilet. Between 2 and 3 is ideal.
 			onToilet: false,
+			openSink: false,
 		};
 
 		this.elapsedTime;
@@ -204,7 +205,7 @@ class Main extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'drink',
-			frameRate: 8,
+			frameRate: 6,
 			frames: this.anims.generateFrameNumbers('character', {
 				start: 14,
 				end: 54,
@@ -227,6 +228,25 @@ class Main extends Phaser.Scene {
 			frames: this.anims.generateFrameNumbers('character', {
 				start: 63,
 				end: 68,
+			}),
+		});
+
+		this.anims.create({
+			key: 'open_faucet',
+			frameRate: 24,
+			frames: this.anims.generateFrameNumbers('sink', {
+				start: 1,
+				end: 9,
+			}),
+		});
+
+		this.anims.create({
+			key: 'flowing',
+			frameRate: 16,
+			repeat: -1,
+			frames: this.anims.generateFrameNumbers('sink', {
+				start: 10,
+				end: 13,
 			}),
 		});
 
@@ -257,7 +277,7 @@ class Main extends Phaser.Scene {
 		this.foodCabinet = this.physics.add.image(65, 425, 'cabinet');
 		this.foodCabinet.body.immovable = true;
 
-		this.sink = this.physics.add.image(65, 275, 'sink');
+		this.sink = this.physics.add.sprite(65, 275, 'sink');
 		this.sink.body.immovable = true;
 
 		this.toilet = this.physics.add.image(65, 150, 'toilet');
@@ -338,15 +358,6 @@ class Main extends Phaser.Scene {
 	}
 
 	interact(_, event) {
-		if (
-			(!this.keys.enabled &&
-				(!this.characterStats.inBed ||
-					!this.characterStats.onToilet)) ||
-			this.detected == null
-		) {
-			return;
-		}
-
 		// Detection of objects
 		let over = false;
 		this.rects.forEach((r) => {
@@ -363,8 +374,16 @@ class Main extends Phaser.Scene {
 			this.detected = null;
 		}
 
+		if (
+			(!this.keys.enabled &&
+				(!this.characterStats.inBed ||
+					!this.characterStats.onToilet)) ||
+			this.detected == null
+		) {
+			return;
+		}
+
 		this.keys.enabled = false;
-		console.log(this.detected);
 		let timing;
 		if (this.detected == 'cabinet') {
 			this.character.x -= 25;
@@ -392,6 +411,17 @@ class Main extends Phaser.Scene {
 			this.character.y = 122;
 			this.character.play('toilet');
 			this.characterAction(0, 'toilet');
+		} else if (this.detected == 'sink') {
+			this.keys.enabled = true;
+			if (!this.characterStats.openSink) {
+				this.sink.play('open_faucet');
+				this.characterStats.openSink = true;
+			} else {
+				this.sink.anims.stop();
+				this.sink.setFrame(0);
+				this.characterStats.openSink = false;
+			}
+			this.characterAction(0, 'sink');
 		}
 	}
 
@@ -401,7 +431,7 @@ class Main extends Phaser.Scene {
 
 		if (action == 'eat') {
 			this.character.once(
-				'animationcomplete',
+				'animationcomplete-drink',
 				function () {
 					this.keys.enabled = true;
 					this.character.x += 25;
@@ -427,8 +457,7 @@ class Main extends Phaser.Scene {
 				'animationcomplete-toilet',
 				function () {
 					const rdm = Math.ceil(Math.random() * 10);
-					console.log(rdm);
-					if (rdm > 3) {
+					if (rdm > 2) {
 						this.character.play('toilet');
 						this.characterAction(0, 'toilet');
 					} else {
@@ -441,6 +470,14 @@ class Main extends Phaser.Scene {
 				this,
 			);
 			return;
+		} else if (action == 'sink') {
+			this.sink.once(
+				'animationcomplete-open_faucet',
+				function () {
+					this.sink.play('flowing');
+				},
+				this,
+			);
 		}
 
 		deviation = deviation / 75; // attenuer les effets du décalage
