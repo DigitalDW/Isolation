@@ -98,6 +98,14 @@ class Main extends Phaser.Scene {
 			'../assets/audio/sink.ogg',
 			'../assets/audio/sink.mp3',
 		]);
+		this.load.audio('bottle_cap', [
+			'../assets/audio/bottle_cap.ogg',
+			'../assets/audio/bottle_cap.mp3',
+		]);
+		this.load.audio('gulps', [
+			'../assets/audio/gulps.ogg',
+			'../assets/audio/gulps.mp3',
+		]);
 	}
 
 	create() {
@@ -174,7 +182,7 @@ class Main extends Phaser.Scene {
 
 		const sinkConfig = {
 			mute: false,
-			volume: 0.33,
+			volume: 0.1,
 			rate: 1,
 			detune: 0,
 			seek: 0,
@@ -197,7 +205,7 @@ class Main extends Phaser.Scene {
 			duration: 17.11,
 			config: {
 				mute: false,
-				volume: 0.33,
+				volume: 0.1,
 				rate: 1,
 				detune: 0,
 				seek: 0,
@@ -212,6 +220,50 @@ class Main extends Phaser.Scene {
 			duration: 1.181,
 			config: sinkConfig,
 		});
+
+		const gulpsConfig = {
+			mute: false,
+			volume: 1,
+			rate: 1,
+			detune: 0,
+			seek: 0,
+			loop: false,
+			delay: 0,
+		};
+		const gulpLength = 0.25;
+		this.gulps = this.sound.add('gulps', gulpsConfig);
+
+		this.gulps.addMarker({
+			name: 'gulp_1',
+			start: 0.299,
+			duration: gulpLength,
+			config: gulpsConfig,
+		});
+
+		this.gulps.addMarker({
+			name: 'gulp_2',
+			start: 1.487,
+			duration: gulpLength,
+			config: gulpsConfig,
+		});
+
+		this.gulps.addMarker({
+			name: 'gulp_3',
+			start: 2.895,
+			duration: gulpLength,
+			config: gulpsConfig,
+		});
+
+		const capConfig = {
+			mute: false,
+			volume: 0.5,
+			rate: 1,
+			detune: 0,
+			seek: 0,
+			loop: false,
+			delay: 0,
+		};
+		this.bottleCap = this.sound.add('bottle_cap', capConfig);
 
 		//#######//
 		// Music //
@@ -624,6 +676,18 @@ class Main extends Phaser.Scene {
 			console.log('stop');
 			this.elapsedTime.paused = true;
 			this.relativeTime.paused = true;
+		}
+
+		if (this.character.anims.currentAnim.key == 'drink') {
+			const frame = this.character.anims.currentFrame.textureFrame;
+			if (frame == 21 && !this.bottleCap.isPlaying) {
+				this.bottleCap.play();
+			} else if (
+				(frame == 40 || frame == 44 || frame == 48) &&
+				!this.gulps.isPlaying
+			) {
+				this.gulps.play(`gulp_${Math.ceil(Math.random() * 3)}`);
+			}
 		}
 
 		// Mouvement continu
