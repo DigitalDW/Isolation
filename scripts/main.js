@@ -94,6 +94,10 @@ class Main extends Phaser.Scene {
 		]);
 		this.load.audio('game_1', ['../assets/audio/game_1.mp3']);
 		this.load.audio('game_2', ['../assets/audio/game_2.mp3']);
+		this.load.audio('water_faucet', [
+			'../assets/audio/sink.ogg',
+			'../assets/audio/sink.mp3',
+		]);
 	}
 
 	create() {
@@ -121,7 +125,7 @@ class Main extends Phaser.Scene {
 		//########//
 		// Sounds //
 		//########//
-		const c = {
+		const configFootsteps = {
 			mute: false,
 			volume: 1,
 			rate: 1,
@@ -130,42 +134,83 @@ class Main extends Phaser.Scene {
 			loop: false,
 			delay: 0,
 		};
-		const d = 0.33;
-		this.footsteps = this.sound.add('footsteps', c);
+		const stepDuration = 0.33;
+		this.footsteps = this.sound.add('footsteps', configFootsteps);
 
 		this.footsteps.addMarker({
 			name: 'step_1',
 			start: 0,
-			duration: d,
-			config: c,
+			duration: stepDuration,
+			config: configFootsteps,
 		});
 
 		this.footsteps.addMarker({
 			name: 'step_2',
 			start: 0.75,
-			duration: d,
-			config: c,
+			duration: stepDuration,
+			config: configFootsteps,
 		});
 
 		this.footsteps.addMarker({
 			name: 'step_3',
 			start: 1.5,
-			duration: d,
-			config: c,
+			duration: stepDuration,
+			config: configFootsteps,
 		});
 
 		this.footsteps.addMarker({
 			name: 'step_4',
 			start: 2.25,
-			duration: d,
-			config: c,
+			duration: stepDuration,
+			config: configFootsteps,
 		});
 
 		this.footsteps.addMarker({
 			name: 'step_5',
 			start: 3,
-			duration: d,
-			config: c,
+			duration: stepDuration,
+			config: configFootsteps,
+		});
+
+		const sinkConfig = {
+			mute: false,
+			volume: 0.33,
+			rate: 1,
+			detune: 0,
+			seek: 0,
+			loop: false,
+			delay: 0,
+		};
+
+		this.sinkSound = this.sound.add('water_faucet', sinkConfig);
+
+		this.sinkSound.addMarker({
+			name: 'start',
+			start: 0,
+			duration: 1.145,
+			config: sinkConfig,
+		});
+
+		this.sinkSound.addMarker({
+			name: 'flow',
+			start: 1.145,
+			duration: 17.11,
+			config: {
+				mute: false,
+				volume: 0.33,
+				rate: 1,
+				detune: 0,
+				seek: 0,
+				loop: true,
+				delay: 0,
+			},
+		});
+
+		this.sinkSound.addMarker({
+			name: 'end',
+			start: 18.255,
+			duration: 1.181,
+			config: sinkConfig,
 		});
 
 		//#######//
@@ -325,7 +370,7 @@ class Main extends Phaser.Scene {
 		this.physics.add.collider(this.character, this.toilet);
 	}
 
-	test(_, t) {
+	detection(_, t) {
 		this.detected = t.name;
 	}
 
@@ -337,6 +382,7 @@ class Main extends Phaser.Scene {
 			!this.footsteps.isPlaying
 		) {
 			this.footsteps.play(`step_${Math.ceil(Math.random() * 5)}`);
+			console.log('step');
 		}
 	}
 
@@ -364,7 +410,7 @@ class Main extends Phaser.Scene {
 			const t = this.physics.overlap(
 				this.charCircle,
 				r,
-				this.test,
+				this.detection,
 				null,
 				this,
 			);
@@ -415,11 +461,10 @@ class Main extends Phaser.Scene {
 			this.keys.enabled = true;
 			if (!this.characterStats.openSink) {
 				this.sink.play('open_faucet');
-				this.characterStats.openSink = true;
+				this.sinkSound.play('start');
 			} else {
 				this.sink.anims.stop();
 				this.sink.setFrame(0);
-				this.characterStats.openSink = false;
 			}
 			this.characterAction(0, 'sink');
 		}
@@ -478,6 +523,19 @@ class Main extends Phaser.Scene {
 				},
 				this,
 			);
+			if (!this.characterStats.openSink) {
+				this.sinkSound.once(
+					'complete',
+					function () {
+						this.sinkSound.play('flow');
+					},
+					this,
+				);
+			} else {
+				this.sinkSound.play('end');
+			}
+
+			this.characterStats.openSink = !this.characterStats.openSink;
 		}
 
 		deviation = deviation / 75; // attenuer les effets du décalage
@@ -511,6 +569,8 @@ class Main extends Phaser.Scene {
 			mealsVariation = this.characterStats.meal - 3; // negatif = pas assez de repas, positif = trop de repas, 0 = assez de repas
 		}
 		dev += mealsVariation * 75;
+
+		dev += Math.floor(this.characterStats.toilet - 2.5) * 10;
 
 		let h = 0;
 		let m = 0;
