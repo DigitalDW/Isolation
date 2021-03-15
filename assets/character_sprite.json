@@ -518,6 +518,54 @@
     "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
     "sourceSize": { "w": 198, "h": 198 },
     "duration": 100
+   },
+   "character (character) 65.ase": {
+    "frame": { "x": 6175, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 66.ase": {
+    "frame": { "x": 6270, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 67.ase": {
+    "frame": { "x": 6365, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 68.ase": {
+    "frame": { "x": 6460, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 69.ase": {
+    "frame": { "x": 6555, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
+   },
+   "character (character) 70.ase": {
+    "frame": { "x": 6650, "y": 0, "w": 95, "h": 171 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 58, "y": 27, "w": 95, "h": 171 },
+    "sourceSize": { "w": 198, "h": 198 },
+    "duration": 100
    }
  },
  "meta": {
@@ -525,13 +573,14 @@
   "version": "1.2.25-x64",
   "image": "character_sprite.png",
   "format": "RGBA8888",
-  "size": { "w": 6175, "h": 171 },
+  "size": { "w": 6745, "h": 171 },
   "scale": "1",
   "frameTags": [
    { "name": "Idle", "from": 0, "to": 5, "direction": "forward" },
    { "name": "Walk", "from": 6, "to": 13, "direction": "forward" },
    { "name": "Eat", "from": 14, "to": 54, "direction": "forward" },
-   { "name": "Sleep", "from": 55, "to": 62, "direction": "forward" }
+   { "name": "Sleep", "from": 55, "to": 62, "direction": "forward" },
+   { "name": "Toilet", "from": 63, "to": 68, "direction": "forward" }
   ],
   "slices": [
   ]

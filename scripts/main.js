@@ -36,6 +36,8 @@ class Main extends Phaser.Scene {
 			meal: 3, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = doit has to eat diner, 3+ = more meals
 			inBed: false,
 			day: 1,
+			toilet: 2, // number of times the character was sat on the toilet. 2 is ideal.
+			onToilet: false,
 		};
 
 		this.elapsedTime;
@@ -219,6 +221,15 @@ class Main extends Phaser.Scene {
 			}),
 		});
 
+		this.anims.create({
+			key: 'toilet',
+			frameRate: 5,
+			frames: this.anims.generateFrameNumbers('character', {
+				start: 63,
+				end: 68,
+			}),
+		});
+
 		//######//
 		// Keys //
 		//######//
@@ -327,7 +338,12 @@ class Main extends Phaser.Scene {
 	}
 
 	interact(_, event) {
-		if (!this.keys.enabled && !this.characterStats.inBed) {
+		if (
+			(!this.keys.enabled &&
+				(!this.characterStats.inBed ||
+					!this.characterStats.onToilet)) ||
+			this.detected == null
+		) {
 			return;
 		}
 
@@ -368,6 +384,14 @@ class Main extends Phaser.Scene {
 				this.characterStats.inBed ? 'wakeUp' : 'goToSleep',
 			);
 			this.characterStats.inBed = !this.characterStats.inBed;
+		} else if (this.detected == 'toilet') {
+			this.characterStats.toilet++;
+			this.characterStats.onToilet = !this.characterStats.onToilet;
+			this.character.flipX = !this.character.flipX;
+			this.character.x = 105;
+			this.character.y = 122;
+			this.character.play('toilet');
+			this.characterAction(0, 'toilet');
 		}
 	}
 
@@ -398,6 +422,25 @@ class Main extends Phaser.Scene {
 			this.characterStats.day++;
 			this.characterStats.meal = 0;
 			deviation += this.wakeUpDeviation(timing);
+		} else if (action == 'toilet') {
+			this.character.once(
+				'animationcomplete-toilet',
+				function () {
+					const rdm = Math.ceil(Math.random() * 10);
+					console.log(rdm);
+					if (rdm > 3) {
+						this.character.play('toilet');
+						this.characterAction(0, 'toilet');
+					} else {
+						this.keys.enabled = true;
+						this.characterStats.onToilet = !this.characterStats
+							.onToilet;
+						this.character.x += 75;
+					}
+				},
+				this,
+			);
+			return;
 		}
 
 		deviation = deviation / 75; // attenuer les effets du décalage
