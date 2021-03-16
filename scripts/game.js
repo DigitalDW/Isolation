@@ -1,4 +1,4 @@
-class Main extends Phaser.Scene {
+class Game extends Phaser.Scene {
 	constructor() {
 		super('main'); // la clef d'accès à la scène
 
