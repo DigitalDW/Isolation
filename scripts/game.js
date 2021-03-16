@@ -74,6 +74,12 @@ class Game extends Phaser.Scene {
 	init(data) {
 		console.log(data);
 		if (Object.keys(data).length > 0) {
+			this.characterStats = data.character;
+			this.seconds = data.timeInfo.seconds;
+			this.minute = data.timeInfo.minute;
+			this.hour = data.timeInfo.hour;
+			this.day = data.timeInfo.day;
+			this.relativeTimeDelay = data.timeInfo.delay;
 		}
 	}
 
@@ -321,6 +327,21 @@ class Game extends Phaser.Scene {
 		if (this.keys.enabled) {
 			this.keys.interact.on('down', this.interact, this);
 		}
+
+		this.input.keyboard.on('keydown-' + 'ESC', () => {
+			this.scene.pause();
+			this.scene.launch('pause', {
+				volume: this.music_1.volume,
+				characterStats: this.characterStats,
+				timeInfo: {
+					seconds: this.seconds,
+					minute: this.minute,
+					hour: this.hour,
+					day: this.day,
+					delay: this.relativeTimeDelay,
+				},
+			});
+		});
 
 		//############//
 		// Add images //

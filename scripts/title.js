@@ -29,6 +29,7 @@ class Title extends Phaser.Scene {
 	create() {
 		this.music = this.sound.add('menu');
 		this.music.setVolume(0.33);
+		this.music.setLoop(true);
 		this.music.play();
 
 		this.press = this.sound.add('menu_press').setVolume(0.5);
@@ -62,7 +63,7 @@ class Title extends Phaser.Scene {
 			'logo',
 		);
 		this.logo.setScale(1.5);
-		this.drawStart(); // for testing purposes
+		//this.drawStart(); // for testing purposes
 	}
 
 	drawStart() {
@@ -148,16 +149,21 @@ class Title extends Phaser.Scene {
 		this.options.destroy();
 		this.logo.destroy();
 		this.music.stop();
+		this.press.play();
 		this.scene.start('game', {});
 	}
 
 	loadGame() {
 		this.music.stop();
-		const data = null; // TODO get saved JSON from localhost instead of null
+		const data = JSON.parse(
+			localStorage.getItem('isolation_saved_game_data'),
+		);
+		this.press.play();
 		this.scene.start('game', data);
 	}
 
 	optionsMenu() {
+		this.press.play();
 		this.scene.start('options');
 	}
 
@@ -170,7 +176,7 @@ class Title extends Phaser.Scene {
 		if (Math.abs(this.logo.y + 1 / 4) <= this.logo.height * 1.5) {
 			this.logo.y += 1 / 4;
 			if (this.logo.y == this.logo.height * 1.5) {
-				//this.drawStart();
+				this.drawStart();
 			}
 		}
 
