@@ -1,9 +1,4 @@
 class Game extends Phaser.Scene {
-	init(data) {
-		if (data != null) {
-		}
-	}
-
 	constructor() {
 		super('game'); // la clef d'accès à la scène
 
@@ -36,6 +31,12 @@ class Game extends Phaser.Scene {
 			},
 		};
 
+		// Time variables
+		this.seconds = 0;
+		this.minute = 0;
+		this.hour = 18; // starting hour
+		this.day = 1;
+
 		// Character stats
 		this.characterStats = {
 			meal: 2, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = has to eat diner, 3+ = more meals
@@ -49,12 +50,6 @@ class Game extends Phaser.Scene {
 		this.elapsedTime;
 		this.relativeTime;
 		this.relativeTimeDelay = 1000;
-
-		// Time variables
-		this.seconds = 0;
-		this.minute = 0;
-		this.hour = 18; // starting hour
-		this.day = 1;
 
 		// Action variables
 		this.forceWakeUp = false;
@@ -74,6 +69,12 @@ class Game extends Phaser.Scene {
 
 		// Detection variable
 		this.detected = null;
+	}
+
+	init(data) {
+		console.log(data);
+		if (Object.keys(data).length > 0) {
+		}
 	}
 
 	preload() {

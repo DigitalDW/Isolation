@@ -62,7 +62,7 @@ class Title extends Phaser.Scene {
 			'logo',
 		);
 		this.logo.setScale(1.5);
-		// this.drawStart(); // for testing purposes
+		this.drawStart(); // for testing purposes
 	}
 
 	drawStart() {
@@ -148,7 +148,7 @@ class Title extends Phaser.Scene {
 		this.options.destroy();
 		this.logo.destroy();
 		this.music.stop();
-		this.scene.start('game', null);
+		this.scene.start('game', {});
 	}
 
 	loadGame() {
@@ -170,7 +170,7 @@ class Title extends Phaser.Scene {
 		if (Math.abs(this.logo.y + 1 / 4) <= this.logo.height * 1.5) {
 			this.logo.y += 1 / 4;
 			if (this.logo.y == this.logo.height * 1.5) {
-				this.drawStart();
+				//this.drawStart();
 			}
 		}
 
