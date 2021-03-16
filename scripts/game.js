@@ -1,6 +1,11 @@
 class Game extends Phaser.Scene {
+	init(data) {
+		if (data != null) {
+		}
+	}
+
 	constructor() {
-		super('main'); // la clef d'accès à la scène
+		super('game'); // la clef d'accès à la scène
 
 		// Game duration
 		this.duration = 24 * 60; // [x] mintues * 60
@@ -284,7 +289,6 @@ class Game extends Phaser.Scene {
 
 		this.music_1.setVolume(0.3);
 		this.music_2.setVolume(0.3);
-		console.log(this.music_1.duration);
 
 		this.music_1.on('complete', () => this.music_2.play());
 		this.music_2.on('complete', () => this.music_1.play());
@@ -662,9 +666,17 @@ class Game extends Phaser.Scene {
 			!this.characterStats.inBed &&
 			!this.growlPlaying // custom isPlaying variable for growls to prevent update function from firing twice on shorter growls
 		) {
-			const chance = Math.ceil(Math.random() * 300);
-			if (chance == 150) {
-				this.playGrowl();
+			if (
+				(this.hour == 7 && this.characterStats.meal == 1) ||
+				(this.hour == 12 && this.characterStats.meal == 2) ||
+				(this.hour == 18 && this.characterStats.meal >= 3)
+			) {
+				return;
+			} else {
+				const chance = Math.ceil(Math.random() * 300);
+				if (chance == 150) {
+					this.playGrowl();
+				}
 			}
 		} else if (
 			(this.hour == 7 || this.hour == 12 || this.hour == 18) &&
@@ -673,7 +685,15 @@ class Game extends Phaser.Scene {
 			!this.characterStats.inBed &&
 			!this.growlPlaying
 		) {
-			this.playGrowl();
+			if (
+				(this.hour == 7 && this.characterStats.meal == 1) ||
+				(this.hour == 12 && this.characterStats.meal == 2) ||
+				(this.hour == 18 && this.characterStats.meal >= 3)
+			) {
+				return;
+			} else {
+				this.playGrowl();
+			}
 		}
 
 		//#######//
