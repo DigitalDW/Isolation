@@ -33,7 +33,7 @@ class Main extends Phaser.Scene {
 
 		// Character stats
 		this.characterStats = {
-			meal: 3, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = doit has to eat diner, 3+ = more meals
+			meal: 2, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = has to eat diner, 3+ = more meals
 			inBed: false,
 			day: 1,
 			toilet: 2, // number of times the character was sat on the toilet. Between 2 and 3 is ideal.
@@ -48,7 +48,7 @@ class Main extends Phaser.Scene {
 		// Time variables
 		this.seconds = 0;
 		this.minute = 0;
-		this.hour = 23; // starting hour
+		this.hour = 18; // starting hour
 		this.day = 1;
 
 		// Action variables
@@ -72,6 +72,7 @@ class Main extends Phaser.Scene {
 	}
 
 	preload() {
+		// Images and sprites
 		this.load.image('background', '../assets/background.png');
 		this.load.image('bed', '../assets/bed.png');
 		this.load.image('cabinet', '../assets/food_cabinet.png');
@@ -88,6 +89,8 @@ class Main extends Phaser.Scene {
 				frameHeight: 171,
 			},
 		);
+
+		// Sounds
 		this.load.audio('footsteps', [
 			'../assets/audio/footstep.ogg',
 			'../assets/audio/footstep.mp3',
@@ -105,6 +108,14 @@ class Main extends Phaser.Scene {
 		this.load.audio('gulps', [
 			'../assets/audio/gulps.ogg',
 			'../assets/audio/gulps.mp3',
+		]);
+		this.load.audio('growls', [
+			'../assets/audio/growls.ogg',
+			'../assets/audio/growls.mp3',
+		]);
+		this.load.audio('yawns', [
+			'../assets/audio/yawns.ogg',
+			'../assets/audio/yawns.mp3',
 		]);
 	}
 
@@ -133,6 +144,7 @@ class Main extends Phaser.Scene {
 		//########//
 		// Sounds //
 		//########//
+		// Footsteps
 		const configFootsteps = {
 			mute: false,
 			volume: 1,
@@ -142,44 +154,18 @@ class Main extends Phaser.Scene {
 			loop: false,
 			delay: 0,
 		};
+		const stepStarts = [0, 0.75, 1.5, 2.25, 3];
 		const stepDuration = 0.33;
-		this.footsteps = this.sound.add('footsteps', configFootsteps);
+		this.footsteps = this.sound.add('footsteps');
+		this.addMarkers(
+			this.footsteps,
+			'step',
+			stepStarts,
+			stepDuration,
+			configFootsteps,
+		);
 
-		this.footsteps.addMarker({
-			name: 'step_1',
-			start: 0,
-			duration: stepDuration,
-			config: configFootsteps,
-		});
-
-		this.footsteps.addMarker({
-			name: 'step_2',
-			start: 0.75,
-			duration: stepDuration,
-			config: configFootsteps,
-		});
-
-		this.footsteps.addMarker({
-			name: 'step_3',
-			start: 1.5,
-			duration: stepDuration,
-			config: configFootsteps,
-		});
-
-		this.footsteps.addMarker({
-			name: 'step_4',
-			start: 2.25,
-			duration: stepDuration,
-			config: configFootsteps,
-		});
-
-		this.footsteps.addMarker({
-			name: 'step_5',
-			start: 3,
-			duration: stepDuration,
-			config: configFootsteps,
-		});
-
+		// Sink
 		const sinkConfig = {
 			mute: false,
 			volume: 0.1,
@@ -189,21 +175,12 @@ class Main extends Phaser.Scene {
 			loop: false,
 			delay: 0,
 		};
-
-		this.sinkSound = this.sound.add('water_faucet', sinkConfig);
-
-		this.sinkSound.addMarker({
-			name: 'start',
-			start: 0,
-			duration: 1.145,
-			config: sinkConfig,
-		});
-
-		this.sinkSound.addMarker({
-			name: 'flow',
-			start: 1.145,
-			duration: 17.11,
-			config: {
+		const sinkNames = ['start', 'flow', 'end'];
+		const sinkStart = [0, 1.145, 18.255];
+		const sinkDurations = [1.145, 17.11, 1.181];
+		const sinkConfigs = [
+			sinkConfig,
+			{
 				mute: false,
 				volume: 0.1,
 				rate: 1,
@@ -212,15 +189,18 @@ class Main extends Phaser.Scene {
 				loop: true,
 				delay: 0,
 			},
-		});
+			sinkConfig,
+		];
+		this.sinkSound = this.sound.add('water_faucet');
+		this.addMarkers(
+			this.sinkSound,
+			sinkNames,
+			sinkStart,
+			sinkDurations,
+			sinkConfigs,
+		);
 
-		this.sinkSound.addMarker({
-			name: 'end',
-			start: 18.255,
-			duration: 1.181,
-			config: sinkConfig,
-		});
-
+		// Gulps
 		const gulpsConfig = {
 			mute: false,
 			volume: 1,
@@ -230,30 +210,18 @@ class Main extends Phaser.Scene {
 			loop: false,
 			delay: 0,
 		};
+		const gulpsStarts = [0.299, 1.487, 2.895];
 		const gulpLength = 0.25;
-		this.gulps = this.sound.add('gulps', gulpsConfig);
+		this.gulps = this.sound.add('gulps');
+		this.addMarkers(
+			this.gulps,
+			'gulp',
+			gulpsStarts,
+			gulpLength,
+			gulpsConfig,
+		);
 
-		this.gulps.addMarker({
-			name: 'gulp_1',
-			start: 0.299,
-			duration: gulpLength,
-			config: gulpsConfig,
-		});
-
-		this.gulps.addMarker({
-			name: 'gulp_2',
-			start: 1.487,
-			duration: gulpLength,
-			config: gulpsConfig,
-		});
-
-		this.gulps.addMarker({
-			name: 'gulp_3',
-			start: 2.895,
-			duration: gulpLength,
-			config: gulpsConfig,
-		});
-
+		// Bottle cap
 		const capConfig = {
 			mute: false,
 			volume: 0.5,
@@ -264,6 +232,48 @@ class Main extends Phaser.Scene {
 			delay: 0,
 		};
 		this.bottleCap = this.sound.add('bottle_cap', capConfig);
+
+		// Growls
+		const growlsConfig = {
+			mute: false,
+			volume: 0.5,
+			rate: 1,
+			detune: 0,
+			seek: 0,
+			loop: false,
+			delay: 0,
+		};
+		const growlsStarts = [0.063, 1.897, 3.193, 4.602, 5.717, 6.662]; // 6
+		const growlsDurations = [1.792, 0.874, 1.197, 0.967, 0.815, 1.18];
+		this.growls = this.sound.add('growls');
+		this.addMarkers(
+			this.growls,
+			'growl',
+			growlsStarts,
+			growlsDurations,
+			growlsConfig,
+		);
+
+		// Yawns
+		const yawnsConfig = {
+			mute: false,
+			volume: 0.5,
+			rate: 1,
+			detune: 0,
+			seek: 0,
+			loop: false,
+			delay: 0,
+		};
+		const yawnsStart = [1.794, 5.5, 9.125, 12.672, 15.95]; // 5
+		const yawnsDurations = [1.607, 1.369, 1.794, 1.526, 1.05];
+		this.yawns = this.sound.add('yawns');
+		this.addMarkers(
+			this.yawns,
+			'yawn',
+			yawnsStart,
+			yawnsDurations,
+			yawnsConfig,
+		);
 
 		//#######//
 		// Music //
@@ -282,70 +292,13 @@ class Main extends Phaser.Scene {
 		//############//
 		// Animations //
 		//############//
-		this.anims.create({
-			key: 'idle',
-			frameRate: 6,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 0,
-				end: 5,
-			}),
-		});
-
-		this.anims.create({
-			key: 'walk',
-			frameRate: 12,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 6,
-				end: 13,
-			}),
-		});
-
-		this.anims.create({
-			key: 'drink',
-			frameRate: 6,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 14,
-				end: 54,
-			}),
-		});
-
-		this.anims.create({
-			key: 'sleep',
-			frameRate: 5,
-			repeat: -1,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 55,
-				end: 62,
-			}),
-		});
-
-		this.anims.create({
-			key: 'toilet',
-			frameRate: 5,
-			frames: this.anims.generateFrameNumbers('character', {
-				start: 63,
-				end: 68,
-			}),
-		});
-
-		this.anims.create({
-			key: 'open_faucet',
-			frameRate: 24,
-			frames: this.anims.generateFrameNumbers('sink', {
-				start: 1,
-				end: 9,
-			}),
-		});
-
-		this.anims.create({
-			key: 'flowing',
-			frameRate: 16,
-			repeat: -1,
-			frames: this.anims.generateFrameNumbers('sink', {
-				start: 10,
-				end: 13,
-			}),
-		});
+		this.createAnim('idle', 6, 'character', 0, 5, 0);
+		this.createAnim('walk', 12, 'character', 6, 13, 0);
+		this.createAnim('drink', 6, 'character', 14, 54, 0);
+		this.createAnim('sleep', 5, 'character', 55, 62, -1);
+		this.createAnim('toilet', 5, 'character', 63, 68, 0);
+		this.createAnim('open_faucet', 24, 'sink', 1, 9, 0);
+		this.createAnim('flowing', 16, 'sink', 10, 13, -1);
 
 		//######//
 		// Keys //
@@ -420,6 +373,30 @@ class Main extends Phaser.Scene {
 		this.physics.add.collider(this.character, this.foodCabinet);
 		this.physics.add.collider(this.character, this.sink);
 		this.physics.add.collider(this.character, this.toilet);
+	}
+
+	addMarkers(sound, name, starts, duration, config) {
+		starts.forEach((start, i) => {
+			sound.addMarker({
+				name: typeof name == 'string' ? `${name}_${i + 1}` : name[i],
+				start: start,
+				duration:
+					typeof duration == 'number' ? duration : duration[i],
+				config: typeof config.length != 'number' ? config : config[i],
+			});
+		});
+	}
+
+	createAnim(name, frameRate, sprite, start, end, repeat) {
+		this.anims.create({
+			key: name,
+			frameRate: frameRate,
+			frames: this.anims.generateFrameNumbers(sprite, {
+				start: start,
+				end: end,
+			}),
+			repeat: repeat,
+		});
 	}
 
 	detection(_, t) {
@@ -662,6 +639,89 @@ class Main extends Phaser.Scene {
 		return dev;
 	}
 
+	characterDrink() {
+		const frame = this.character.anims.currentFrame.textureFrame;
+		if (frame == 21 && !this.bottleCap.isPlaying) {
+			this.bottleCap.play();
+		} else if (
+			(frame == 40 || frame == 44 || frame == 48) &&
+			!this.gulps.isPlaying
+		) {
+			this.gulps.play(`gulp_${Math.ceil(Math.random() * 3)}`);
+		}
+	}
+
+	sounds() {
+		//########//
+		// Hunger //
+		//########//
+		if (
+			(this.hour == 7 || this.hour == 12 || this.hour == 18) &&
+			this.minute % 5 == 0 &&
+			this.minute != 30 &&
+			!this.characterStats.inBed &&
+			!this.growlPlaying // custom isPlaying variable for growls to prevent update function from firing twice on shorter growls
+		) {
+			const chance = Math.ceil(Math.random() * 300);
+			if (chance == 150) {
+				this.playGrowl();
+			}
+		} else if (
+			(this.hour == 7 || this.hour == 12 || this.hour == 18) &&
+			this.minute % 5 == 0 &&
+			this.minute == 30 &&
+			!this.characterStats.inBed &&
+			!this.growlPlaying
+		) {
+			this.playGrowl();
+		}
+
+		//#######//
+		// Tired //
+		//#######//
+		if (
+			(this.hour == 22 || this.hour == 23) &&
+			this.minute % 10 == 0 &&
+			this.minute != 0 &&
+			!this.characterStats.inBed &&
+			!this.yawns.isPlaying
+		) {
+			const chance = Math.ceil(Math.random() * 150);
+			if (chance == 75) {
+				this.playYawn();
+			}
+		} else if (
+			this.hour == 23 &&
+			this.minute == 0 &&
+			!this.characterStats.inBed &&
+			!this.yawns.isPlaying
+		) {
+			this.playYawn();
+		}
+	}
+
+	playGrowl() {
+		this.growls.play(`growl_${Math.ceil(Math.random() * 6)}`);
+		this.growlPlaying = true;
+		setTimeout(() => (this.growlPlaying = false), 2000);
+	}
+
+	playYawn() {
+		this.yawns.play(`yawn_${Math.ceil(Math.random() * 5)}`);
+		if (this.character.anims.isPlaying) {
+			this.character.anims.stop();
+			this.character.setFrame(0);
+			this.keys.enabled = false;
+			this.yawns.once(
+				'complete',
+				function () {
+					this.keys.enabled = true;
+				},
+				this,
+			);
+		}
+	}
+
 	update() {
 		if (this.character.y <= this.bed.height + 24) {
 			this.bedCollision.active = true;
@@ -679,15 +739,7 @@ class Main extends Phaser.Scene {
 		}
 
 		if (this.character.anims.currentAnim.key == 'drink') {
-			const frame = this.character.anims.currentFrame.textureFrame;
-			if (frame == 21 && !this.bottleCap.isPlaying) {
-				this.bottleCap.play();
-			} else if (
-				(frame == 40 || frame == 44 || frame == 48) &&
-				!this.gulps.isPlaying
-			) {
-				this.gulps.play(`gulp_${Math.ceil(Math.random() * 3)}`);
-			}
+			this.characterDrink();
 		}
 
 		// Mouvement continu
@@ -724,6 +776,8 @@ class Main extends Phaser.Scene {
 		if (!this.music_1.isPlaying && !this.music_2.isPlaying) {
 			this.music_1.play();
 		}
+
+		this.sounds();
 	}
 
 	reset() {}
