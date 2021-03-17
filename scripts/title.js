@@ -168,7 +168,7 @@ class Title extends Phaser.Scene {
 	}
 
 	update() {
-		if (this.alpha - 1 / (60 * 200) >= 0.5) {
+		if (this.alpha - 1 / (60 * 200) >= 0.8) {
 			this.alpha -= 1 / (60 * 200);
 			this.rect.setFillStyle('black', this.alpha);
 		}
