@@ -157,24 +157,21 @@ class Game extends Phaser.Scene {
 		// Sounds //
 		//########//
 		// Footsteps
-		const configFootsteps = {
-			mute: false,
-			volume: 1,
-			rate: 1,
-			detune: 0,
-			seek: 0,
-			loop: false,
-			delay: 0,
-		};
-		const stepStarts = [0, 0.75, 1.5, 2.25, 3];
-		const stepDuration = 0.33;
 		this.footsteps = this.sound.add('footsteps');
 		this.addMarkers(
 			this.footsteps,
 			'step',
-			stepStarts,
-			stepDuration,
-			configFootsteps,
+			[0, 0.75, 1.5, 2.25, 3],
+			0.33,
+			{
+				mute: false,
+				volume: 1,
+				rate: 1,
+				detune: 0,
+				seek: 0,
+				loop: false,
+				delay: 0,
+			},
 		);
 
 		// Sink
@@ -187,33 +184,30 @@ class Game extends Phaser.Scene {
 			loop: false,
 			delay: 0,
 		};
-		const sinkNames = ['start', 'flow', 'end'];
-		const sinkStart = [0, 1.145, 18.255];
-		const sinkDurations = [1.145, 17.11, 1.181];
-		const sinkConfigs = [
-			sinkConfig,
-			{
-				mute: false,
-				volume: 0.1,
-				rate: 1,
-				detune: 0,
-				seek: 0,
-				loop: true,
-				delay: 0,
-			},
-			sinkConfig,
-		];
 		this.sinkSound = this.sound.add('water_faucet');
 		this.addMarkers(
 			this.sinkSound,
-			sinkNames,
-			sinkStart,
-			sinkDurations,
-			sinkConfigs,
+			['start', 'flow', 'end'],
+			[0, 1.145, 18.255],
+			[1.145, 17.11, 1.181],
+			[
+				sinkConfig,
+				{
+					mute: false,
+					volume: 0.1,
+					rate: 1,
+					detune: 0,
+					seek: 0,
+					loop: true,
+					delay: 0,
+				},
+				sinkConfig,
+			],
 		);
 
 		// Gulps
-		const gulpsConfig = {
+		this.gulps = this.sound.add('gulps');
+		this.addMarkers(this.gulps, 'gulp', [0.299, 1.487, 2.895], 0.25, {
 			mute: false,
 			volume: 1,
 			rate: 1,
@@ -221,17 +215,7 @@ class Game extends Phaser.Scene {
 			seek: 0,
 			loop: false,
 			delay: 0,
-		};
-		const gulpsStarts = [0.299, 1.487, 2.895];
-		const gulpLength = 0.25;
-		this.gulps = this.sound.add('gulps');
-		this.addMarkers(
-			this.gulps,
-			'gulp',
-			gulpsStarts,
-			gulpLength,
-			gulpsConfig,
-		);
+		});
 
 		// Bottle cap
 		const capConfig = {
@@ -246,45 +230,39 @@ class Game extends Phaser.Scene {
 		this.bottleCap = this.sound.add('bottle_cap', capConfig);
 
 		// Growls
-		const growlsConfig = {
-			mute: false,
-			volume: 0.5,
-			rate: 1,
-			detune: 0,
-			seek: 0,
-			loop: false,
-			delay: 0,
-		};
-		const growlsStarts = [0.063, 1.897, 3.193, 4.602, 5.717, 6.662]; // 6
-		const growlsDurations = [1.792, 0.874, 1.197, 0.967, 0.815, 1.18];
 		this.growls = this.sound.add('growls');
 		this.addMarkers(
 			this.growls,
 			'growl',
-			growlsStarts,
-			growlsDurations,
-			growlsConfig,
+			[0.063, 1.897, 3.193, 4.602, 5.717, 6.662],
+			[1.792, 0.874, 1.197, 0.967, 0.815, 1.18],
+			{
+				mute: false,
+				volume: 0.5,
+				rate: 1,
+				detune: 0,
+				seek: 0,
+				loop: false,
+				delay: 0,
+			},
 		);
 
 		// Yawns
-		const yawnsConfig = {
-			mute: false,
-			volume: 0.5,
-			rate: 1,
-			detune: 0,
-			seek: 0,
-			loop: false,
-			delay: 0,
-		};
-		const yawnsStart = [1.794, 5.5, 9.125, 12.672, 15.95]; // 5
-		const yawnsDurations = [1.607, 1.369, 1.794, 1.526, 1.05];
 		this.yawns = this.sound.add('yawns');
 		this.addMarkers(
 			this.yawns,
 			'yawn',
-			yawnsStart,
-			yawnsDurations,
-			yawnsConfig,
+			[1.794, 5.5, 9.125, 12.672, 15.95],
+			[1.607, 1.369, 1.794, 1.526, 1.05],
+			{
+				mute: false,
+				volume: 0.5,
+				rate: 1,
+				detune: 0,
+				seek: 0,
+				loop: false,
+				delay: 0,
+			},
 		);
 
 		//#######//
@@ -322,11 +300,7 @@ class Game extends Phaser.Scene {
 			interact: Phaser.Input.Keyboard.KeyCodes.E,
 		});
 		this.keys.enabled = true;
-		this.keys.isDown = false;
-
-		if (this.keys.enabled) {
-			this.keys.interact.on('down', this.interact, this);
-		}
+		this.keys.interact.on('down', this.interact, this);
 
 		this.input.keyboard.on('keydown-' + 'ESC', () => {
 			this.scene.pause();
@@ -623,7 +597,7 @@ class Game extends Phaser.Scene {
 		if (!this.forceWakeUp) {
 			mealsVariation = this.characterStats.meal - 3; // negatif = pas assez de repas, positif = trop de repas, 0 = assez de repas
 		}
-		dev += mealsVariation * 75;
+		dev += mealsVariation * (mealsVariation < 0 ? 1250 : 75);
 
 		dev +=
 			this.characterStats.toilet == 2 ||
