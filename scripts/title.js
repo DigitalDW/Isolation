@@ -3,7 +3,18 @@ class Title extends Phaser.Scene {
 		super('title');
 
 		this.alpha = 1;
+
+		this.loadLogo = true;
 	}
+
+	init(data) {
+		if (Object.keys(data).length > 0) {
+			if (data.fromOptions) {
+				this.loadLogo = false;
+			}
+		}
+	}
+
 	preload() {
 		this.load.image('logo', '../assets/title.png');
 		this.load.image('background', '../assets/background.png');
@@ -26,6 +37,7 @@ class Title extends Phaser.Scene {
 			'../assets/audio/pluck.mp3',
 		]);
 	}
+
 	create() {
 		this.music = this.sound.add('menu');
 		this.music.setVolume(0.33);
@@ -59,9 +71,10 @@ class Title extends Phaser.Scene {
 
 		this.logo = this.add.image(
 			this.game.config.width / 2,
-			-100,
+			this.loadLogo ? -100 : this.logo.height * 1.5,
 			'logo',
 		);
+		if (!this.loadLogo) this.drawMenu();
 		this.logo.setScale(1.5);
 		//this.drawStart(); // for testing purposes
 	}
@@ -164,7 +177,7 @@ class Title extends Phaser.Scene {
 
 	optionsMenu() {
 		this.press.play();
-		this.scene.start('options');
+		this.scene.start('options', { origin: 'title' });
 	}
 
 	update() {
@@ -175,7 +188,7 @@ class Title extends Phaser.Scene {
 
 		if (Math.abs(this.logo.y + 1 / 4) <= this.logo.height * 1.5) {
 			this.logo.y += 1 / 4;
-			if (this.logo.y == this.logo.height * 1.5) {
+			if (this.logo.y == this.logo.height * 1.5 && this.loadLogo) {
 				this.drawStart();
 			}
 		}

@@ -7,7 +7,7 @@ const config = {
 		// mode: Phaser.Scale.FIT,
 		// autoCenter: Phaser.Scale.CENTER_BOTH,
 	},
-	scene: [Title, Game, Pause],
+	scene: [Title, Game, Pause, Options],
 	physics: {
 		default: 'arcade',
 		arcade: {

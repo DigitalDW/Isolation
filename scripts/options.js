@@ -1,16 +1,10 @@
-class Pause extends Phaser.Scene {
+class Options extends Phaser.Scene {
 	constructor() {
-		super('pause');
-
-		this.alpha = 0;
+		super('options');
 	}
 
 	init(data) {
-		this.volume = data.volume;
-		this.playerData = {
-			character: data.characterStats,
-			timeInfo: data.timeInfo,
-		};
+		this.fromScene = data.origin;
 	}
 
 	preload() {
@@ -30,11 +24,6 @@ class Pause extends Phaser.Scene {
 		this.press = this.sound.add('menu_press').setVolume(0.5);
 		this.pluck = this.sound.add('pluck').setVolume(0.33);
 
-		this.input.keyboard.on('keydown-' + 'ESC', () => {
-			this.scene.stop();
-			this.scene.resume('game');
-		});
-
 		this.rect = this.add.rectangle(
 			this.game.config.width / 2,
 			this.game.config.height / 2,
@@ -44,51 +33,51 @@ class Pause extends Phaser.Scene {
 			this.alpha,
 		);
 
-		this.resume = this.add
-			.text(177, 90 * 2.5, 'Resume', {
+		this.help = this.add
+			.text(177, 90 * 2.5, 'Help', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
-		this.resume.on('pointerover', () => {
+		this.help.on('pointerover', () => {
 			this.arrow.y = 90 * 2.65;
 			this.arrow.x = 155;
 			this.pluck.play();
 		});
-		this.resume.on('pointerdown', () => {
+		/*this.help.on('pointerdown', () => {
 			this.scene.stop();
 			this.press.play();
 			this.scene.resume('game');
-		});
+		});*/
 
-		this.options = this.add
-			.text(169, 90 * 3, 'Options', {
+		this.volume = this.add
+			.text(169, 90 * 3, 'Volume', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
-		this.options.on('pointerover', () => {
+		this.volume.on('pointerover', () => {
 			this.arrow.y = 90 * 3.15;
 			this.arrow.x = 147;
 			this.pluck.play();
 		});
-		this.options.on('pointerdown', this.optionsMenu, this);
+		//this.volume.on('pointerdown', this.volumeMenu, this);
 
-		this.save = this.add
-			.text(124, 90 * 3.5, 'Save and quit', {
+		this.back = this.add
+			.text(124, 90 * 3.5, 'Back', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
-		this.save.on('pointerover', () => {
+		this.back.on('pointerover', () => {
 			this.arrow.y = 90 * 3.65;
 			this.arrow.x = 102;
 			this.pluck.play();
 		});
-		this.save.on('pointerdown', this.saveGame, this);
+		this.back.on('pointerdown', this.backToScene, this);
 
 		this.tweens.add({
-			targets: [this.resume, this.options, this.save],
+			targets: [this.help, this.volume, this.back],
 			alpha: { value: 1, duration: 1000, ease: 'Power1' },
 			delay: 100,
 			onComplete: () => {
@@ -97,26 +86,12 @@ class Pause extends Phaser.Scene {
 		});
 	}
 
-	optionsMenu() {
-		this.press.play();
-		this.scene.start('options', { origin: 'pause' });
-	}
-
-	saveGame() {
-		localStorage.setItem(
-			'isolation_saved_game_data',
-			JSON.stringify(this.playerData),
-		);
-		console.log(
-			`saved : ${JSON.parse(
-				localStorage.getItem('isolation_saved_game_data'),
-			)}`,
-		);
-		this.scene.stop('game');
-		this.scene.stop();
-		this.sound.stopAll();
-		this.press.play();
-		this.scene.start('title');
+	backToScene() {
+		if (this.fromScene == 'pause') {
+			this.scene.start('pause');
+		} else if (this.fromScene == 'title') {
+			this.scene.start('title', { fromOptions: true });
+		}
 	}
 
 	update() {
