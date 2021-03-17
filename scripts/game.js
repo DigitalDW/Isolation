@@ -411,7 +411,6 @@ class Game extends Phaser.Scene {
 			!this.footsteps.isPlaying
 		) {
 			this.footsteps.play(`step_${Math.ceil(Math.random() * 5)}`);
-			console.log('step');
 		}
 	}
 
@@ -571,22 +570,14 @@ class Game extends Phaser.Scene {
 		this.relativeTimeDelay += deviation;
 		this.relativeTime.delay = this.relativeTimeDelay;
 		console.log(this.relativeTimeDelay);
-
-		// IMPORTANT: on peut ralentir/accelerer le delai avec this.relativeTime.delay = ...
 	}
 
 	eatDeviation(timing) {
 		let dev = 0;
-		let h = 0;
-		let m = 0;
 		if (this.hour < timing.start) {
-			h = timing.start - 1 - this.hour;
-			m = 60 - this.minute + h * 60;
-			dev -= m * 15;
+			dev -= this.timeDeviation(timing, 'early') * 15;
 		} else if (this.hour >= timing.end) {
-			h = this.hour - timing.end;
-			m = this.minute + h * 60;
-			dev += m * 15;
+			dev += this.timeDeviation(timing, 'late') * 15;
 		}
 		return dev;
 	}
@@ -599,22 +590,14 @@ class Game extends Phaser.Scene {
 		}
 		dev += mealsVariation * (mealsVariation < 0 ? 1250 : 75);
 
+		const toilet = this.characterStats.toilet;
 		dev +=
-			this.characterStats.toilet == 2 ||
-			this.characterStats.toilet == 3
-				? 0
-				: Math.round(this.characterStats.toilet - 2.5) * 10;
+			toilet == 2 || toilet == 3 ? 0 : Math.round(toilet - 2.5) * 10;
 
-		let h = 0;
-		let m = 0;
 		if (this.hour < timing.start && this.day == day) {
-			h = timing.start - 1 - this.hour;
-			m = 60 - this.minute + h * 60;
-			dev -= m * 25;
+			dev -= this.timeDeviation(timing, 'early') * 25;
 		} else if (this.hour >= timing.end && this.day > day) {
-			h = this.hour - timing.end;
-			m = this.minute + h * 60;
-			dev += m * 25;
+			dev += this.timeDeviation(timing, 'late') * 25;
 		}
 		return dev;
 	}
@@ -623,24 +606,32 @@ class Game extends Phaser.Scene {
 		const currDay = this.day;
 		const day = this.characterStats.day;
 		let dev = 0;
-		let h = 0;
-		let m = 0;
 		if (this.hour < timing.start && this.day == day) {
-			h = timing.start - 1 - this.hour;
-			m = 60 - this.minute + h * 60;
-			dev -= m * 20;
+			dev -= this.timeDeviation(timing, 'early') * 20;
 		} else if (this.hour >= timing.end && this.day == day) {
-			h = this.hour - timing.end;
-			m = this.minute + h * 60;
-			dev += m * 10;
+			dev += this.timeDeviation(timing, 'late') * 10;
 		} else {
-			h = 23 - this.hour + timing.start;
-			m = 60 - this.minute + h * 60;
-			dev -= m * 30;
+			dev -= this.timeDeviation(timing, 'special') * 30;
 		}
 		this.day += this.day + 1 == currDay ? 0 : 1;
 		this.hour = 7;
 		return dev;
+	}
+
+	timeDeviation(timing, state) {
+		let h = 0;
+		let m = 0;
+		if (state == 'early') {
+			h = timing.start - 1 - this.hour;
+			m = 60 - this.minute + h * 60;
+		} else if (state == 'late') {
+			h = this.hour - timing.end;
+			m = this.minute + h * 60;
+		} else {
+			h = 23 - this.hour + timing.start;
+			m = 60 - this.minute + h * 60;
+		}
+		return m;
 	}
 
 	characterDrink() {
