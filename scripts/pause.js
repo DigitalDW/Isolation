@@ -44,6 +44,8 @@ class Pause extends Phaser.Scene {
 			this.alpha,
 		);
 
+		this.arrow = this.add.image(155, 90 * 2.65, 'arrow').setAlpha(0);
+
 		this.resume = this.add
 			.text(177, 90 * 2.5, 'Resume', {
 				font: '26px',
@@ -92,7 +94,7 @@ class Pause extends Phaser.Scene {
 			alpha: { value: 1, duration: 1000, ease: 'Power1' },
 			delay: 100,
 			onComplete: () => {
-				this.arrow = this.add.image(155, 90 * 2.65, 'arrow');
+				this.arrow.setAlpha(1);
 			},
 		});
 	}

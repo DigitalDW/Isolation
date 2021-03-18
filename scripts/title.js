@@ -104,6 +104,11 @@ class Title extends Phaser.Scene {
 
 	drawMenu() {
 		this.play.destroy();
+
+		this.arrow = this.add
+			.image(155, this.logo.height * 3.15, 'arrow')
+			.setAlpha(0);
+
 		this.newGame = this.add
 			.text(165, this.logo.height * 3, 'New game', {
 				font: '26px',
@@ -145,11 +150,7 @@ class Title extends Phaser.Scene {
 			alpha: { value: 1, duration: 1000, ease: 'Power1' },
 			delay: 250,
 			onComplete: () => {
-				this.arrow = this.add.image(
-					145,
-					this.logo.height * 3.15,
-					'arrow',
-				);
+				this.arrow.setAlpha(1);
 			},
 		});
 	}
@@ -161,7 +162,7 @@ class Title extends Phaser.Scene {
 		this.logo.destroy();
 		this.music.stop();
 		this.press.play();
-		this.scene.start('game', {});
+		this.scene.start('help', { origin: 'newgame', playerData: {} });
 	}
 
 	loadGame() {
@@ -170,7 +171,7 @@ class Title extends Phaser.Scene {
 			localStorage.getItem('isolation_saved_game_data'),
 		);
 		this.press.play();
-		this.scene.start('game', data);
+		this.scene.start('help', { origin: 'newgame', playerData: data });
 	}
 
 	optionsMenu() {

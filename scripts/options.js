@@ -40,6 +40,8 @@ class Options extends Phaser.Scene {
 		this.press = this.sound.add('menu_press').setVolume(0.5);
 		this.pluck = this.sound.add('pluck').setVolume(0.33);
 
+		this.arrow = this.add.image(155, 90 * 2.65, 'arrow').setAlpha(0);
+
 		this.rect = this.add.rectangle(
 			this.game.config.width / 2,
 			this.game.config.height / 2,
@@ -92,11 +94,11 @@ class Options extends Phaser.Scene {
 			this.arrow.x = 170;
 			this.pluck.play();
 		});
-		/*this.help.on('pointerdown', () => {
-			this.scene.stop();
+		this.help.on('pointerdown', () => {
+			this.scene.pause();
 			this.press.play();
-			this.scene.resume('game');
-		});*/
+			this.scene.launch('help', { origin: 'options' });
+		});
 
 		this.volume = this.add
 			.text(132, 90 * 3, 'Music volume', {
@@ -104,7 +106,6 @@ class Options extends Phaser.Scene {
 			})
 			.setInteractive()
 			.setAlpha(0);
-		//this.volume.on('pointerdown', this.volumeMenu, this);
 
 		this.back = this.add
 			.text(192, 90 * 3.5, 'Back', {
@@ -124,12 +125,13 @@ class Options extends Phaser.Scene {
 			alpha: { value: 1, duration: 1000, ease: 'Power1' },
 			delay: 100,
 			onComplete: () => {
-				this.arrow = this.add.image(155, 90 * 2.65, 'arrow');
+				this.arrow.setAlpha(1);
 			},
 		});
 	}
 
 	backToScene() {
+		this.press.play();
 		if (this.fromScene == 'game') {
 			this.scene.stop();
 			this.scene.run('pause');
