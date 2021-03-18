@@ -347,6 +347,33 @@ class Game extends Phaser.Scene {
 		this.physics.add.existing(this.character);
 		this.character.body.setCollideWorldBounds(true);
 
+		//###############//
+		// Add info rect //
+		//###############//
+
+		this.rect = this.add
+			.rectangle(
+				this.game.config.width / 2,
+				400,
+				this.game.config.width,
+				this.game.config.height / 5,
+				'black',
+			)
+			.setAlpha(0.8);
+
+		this.infoText = this.add.text(
+			this.game.config.width / 4,
+			360,
+			`     Day ${this.day}\n\n${this.hour % 12}:${
+				this.minute < 10 ? '0' : ''
+			}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${this.hour}:${
+				this.minute < 10 ? '0' : ''
+			}${this.minute})`,
+			{
+				font: '26px',
+			},
+		);
+
 		//#########//
 		// Overlap //
 		//#########//
@@ -738,7 +765,7 @@ class Game extends Phaser.Scene {
 		}
 	}
 
-	update() {
+	update(time) {
 		if (this.character.y <= this.bed.height + 24) {
 			this.bedCollision.active = true;
 		} else {
@@ -791,6 +818,11 @@ class Game extends Phaser.Scene {
 
 		if (!this.music_1.isPlaying && !this.music_2.isPlaying) {
 			this.music_1.play();
+		}
+
+		if (Math.round(time / 1000) <= 30) {
+			this.rect.setAlpha(this.rect.alpha - 0.8 / (15 * 60));
+			this.infoText.setAlpha(this.infoText.alpha - 0.8 / (15 * 60));
 		}
 
 		this.sounds();
