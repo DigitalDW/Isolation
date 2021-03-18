@@ -180,7 +180,6 @@ class Title extends Phaser.Scene {
 		this.scene.launch('options', {
 			origin: 'title',
 		});
-		console.log(this.music.volume);
 	}
 
 	update() {

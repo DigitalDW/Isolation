@@ -72,7 +72,6 @@ class Game extends Phaser.Scene {
 	}
 
 	init(data) {
-		console.log(data);
 		if (Object.keys(data).length > 0) {
 			this.characterStats = data.character;
 			this.seconds = data.timeInfo.seconds;

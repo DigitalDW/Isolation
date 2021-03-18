@@ -110,11 +110,7 @@ class Pause extends Phaser.Scene {
 			'isolation_saved_game_data',
 			JSON.stringify(this.playerData),
 		);
-		console.log(
-			`saved : ${JSON.parse(
-				localStorage.getItem('isolation_saved_game_data'),
-			)}`,
-		);
+		console.log('saved');
 		this.scene.stop('game');
 		this.scene.stop();
 		this.sound.stopAll();
