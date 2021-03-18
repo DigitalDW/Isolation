@@ -99,7 +99,8 @@ class Pause extends Phaser.Scene {
 
 	optionsMenu() {
 		this.press.play();
-		this.scene.start('options', { origin: 'pause' });
+		this.scene.stop();
+		this.scene.start('options', { origin: 'game' });
 	}
 
 	saveGame() {

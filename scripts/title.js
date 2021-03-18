@@ -5,14 +5,7 @@ class Title extends Phaser.Scene {
 		this.alpha = 1;
 
 		this.loadLogo = true;
-	}
-
-	init(data) {
-		if (Object.keys(data).length > 0) {
-			if (data.fromOptions) {
-				this.loadLogo = false;
-			}
-		}
+		this.volume = 0.33;
 	}
 
 	preload() {
@@ -43,6 +36,11 @@ class Title extends Phaser.Scene {
 		this.music.setVolume(0.33);
 		this.music.setLoop(true);
 		this.music.play();
+
+		const options = this.scene.get('options');
+		options.events.on('volume_change', (value) => {
+			this.music.setVolume(value);
+		});
 
 		this.press = this.sound.add('menu_press').setVolume(0.5);
 		this.pluck = this.sound.add('pluck').setVolume(0.33);
@@ -177,7 +175,11 @@ class Title extends Phaser.Scene {
 
 	optionsMenu() {
 		this.press.play();
-		this.scene.start('options', { origin: 'title' });
+		this.scene.pause();
+		this.scene.launch('options', {
+			origin: 'title',
+		});
+		console.log(this.music.volume);
 	}
 
 	update() {

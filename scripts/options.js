@@ -5,9 +5,25 @@ class Options extends Phaser.Scene {
 
 	init(data) {
 		this.fromScene = data.origin;
+		this.originScene = this.scene.get(data.origin);
+		if (data.origin == 'title') {
+			this.test = [this.originScene.music];
+		} else if (data.origin == 'game') {
+			this.test = [
+				this.originScene.music_1,
+				this.originScene.music_2,
+			];
+		}
 	}
 
 	preload() {
+		this.load.scenePlugin({
+			key: 'rexuiplugin',
+			url:
+				'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+			sceneKey: 'rexUI',
+		});
+
 		this.load.image('arrow', '../assets/arrow.png');
 
 		this.load.audio('menu_press', [
@@ -33,15 +49,47 @@ class Options extends Phaser.Scene {
 			this.alpha,
 		);
 
+		this.slider = this.rexUI.add
+			.slider({
+				x: 225,
+				y: 305,
+				width: 200,
+				height: 10,
+				orientation: 'x',
+
+				track: this.rexUI.add.roundRectangle(0, 0, 0, 0, 6, 0x696969),
+				indicator: this.rexUI.add.roundRectangle(
+					0,
+					0,
+					0,
+					0,
+					6,
+					0xb0b0b0,
+				),
+				thumb: this.rexUI.add.roundRectangle(0, 0, 0, 0, 6, 0xb0b0b0),
+
+				space: {
+					top: 4,
+					bottom: 4,
+				},
+				input: 'drag', // 'drag'|'click'
+				value: this.test[0].volume,
+			})
+			.layout();
+
+		this.slider.on('valuechange', (value) => {
+			this.events.emit('volume_change', value);
+		});
+
 		this.help = this.add
-			.text(177, 90 * 2.5, 'Help', {
+			.text(192, 90 * 2.5, 'Help', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
 		this.help.on('pointerover', () => {
 			this.arrow.y = 90 * 2.65;
-			this.arrow.x = 155;
+			this.arrow.x = 170;
 			this.pluck.play();
 		});
 		/*this.help.on('pointerdown', () => {
@@ -51,27 +99,22 @@ class Options extends Phaser.Scene {
 		});*/
 
 		this.volume = this.add
-			.text(169, 90 * 3, 'Volume', {
+			.text(132, 90 * 3, 'Music volume', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
-		this.volume.on('pointerover', () => {
-			this.arrow.y = 90 * 3.15;
-			this.arrow.x = 147;
-			this.pluck.play();
-		});
 		//this.volume.on('pointerdown', this.volumeMenu, this);
 
 		this.back = this.add
-			.text(124, 90 * 3.5, 'Back', {
+			.text(192, 90 * 3.5, 'Back', {
 				font: '26px',
 			})
 			.setInteractive()
 			.setAlpha(0);
 		this.back.on('pointerover', () => {
 			this.arrow.y = 90 * 3.65;
-			this.arrow.x = 102;
+			this.arrow.x = 170;
 			this.pluck.play();
 		});
 		this.back.on('pointerdown', this.backToScene, this);
@@ -87,10 +130,12 @@ class Options extends Phaser.Scene {
 	}
 
 	backToScene() {
-		if (this.fromScene == 'pause') {
-			this.scene.start('pause');
+		if (this.fromScene == 'game') {
+			this.scene.stop();
+			this.scene.run('pause');
 		} else if (this.fromScene == 'title') {
-			this.scene.start('title', { fromOptions: true });
+			this.scene.stop();
+			this.scene.run('title');
 		}
 	}
 

@@ -278,6 +278,12 @@ class Game extends Phaser.Scene {
 		this.music_1.on('complete', () => this.music_2.play());
 		this.music_2.on('complete', () => this.music_1.play());
 
+		const options = this.scene.get('options');
+		options.events.on('volume_change', (value) => {
+			this.music_1.setVolume(value);
+			this.music_2.setVolume(value);
+		});
+
 		//############//
 		// Animations //
 		//############//
