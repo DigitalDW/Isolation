@@ -40,16 +40,15 @@ class Options extends Phaser.Scene {
 		this.press = this.sound.add('menu_press').setVolume(0.5);
 		this.pluck = this.sound.add('pluck').setVolume(0.33);
 
-		this.arrow = this.add.image(155, 90 * 2.65, 'arrow').setAlpha(0);
-
-		this.rect = this.add.rectangle(
-			this.game.config.width / 2,
-			this.game.config.height / 2,
-			this.game.config.width,
-			this.game.config.height,
-			'black',
-			this.alpha,
-		);
+		this.rect = this.add
+			.rectangle(
+				this.game.config.width / 2,
+				this.game.config.height / 2,
+				this.game.config.width,
+				this.game.config.height,
+				'black',
+			)
+			.setAlpha(0);
 
 		this.slider = this.rexUI.add
 			.slider({
@@ -74,10 +73,11 @@ class Options extends Phaser.Scene {
 					top: 4,
 					bottom: 4,
 				},
-				input: 'drag', // 'drag'|'click'
+				input: 'click', // 'drag'|'click'
 				value: this.test[0].volume,
 			})
-			.layout();
+			.layout()
+			.setAlpha(0);
 
 		this.slider.on('valuechange', (value) => {
 			this.events.emit('volume_change', value);
@@ -120,8 +120,15 @@ class Options extends Phaser.Scene {
 		});
 		this.back.on('pointerdown', this.backToScene, this);
 
+		this.arrow = this.add.image(155, 90 * 2.65, 'arrow').setAlpha(0);
 		this.tweens.add({
-			targets: [this.help, this.volume, this.back],
+			targets: [
+				this.rect,
+				this.help,
+				this.volume,
+				this.slider,
+				this.back,
+			],
 			alpha: { value: 1, duration: 1000, ease: 'Power1' },
 			delay: 100,
 			onComplete: () => {
@@ -141,10 +148,5 @@ class Options extends Phaser.Scene {
 		}
 	}
 
-	update() {
-		if (this.alpha + 1 / 120 <= 0.8) {
-			this.alpha += 1 / 120;
-			this.rect.setFillStyle('black', this.alpha);
-		}
-	}
+	update() {}
 }
