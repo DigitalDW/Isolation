@@ -34,12 +34,12 @@ class Game extends Phaser.Scene {
 		// Time variables
 		this.seconds = 0;
 		this.minute = 0;
-		this.hour = 22; // starting hour
+		this.hour = 15; // starting hour
 		this.day = 1;
 
 		// Character stats
 		this.characterStats = {
-			meal: 3, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = has to eat diner, 3+ = more meals
+			meal: 2, // 0 = has to eat breakfast, 1 = has to eat lunch, 2 = has to eat diner, 3+ = ate diner - ("+" - more meals)
 			inBed: false,
 			day: 1,
 			toilet: 2, // number of times the character was sat on the toilet. Between 2 and 3 is ideal.
@@ -453,7 +453,7 @@ class Game extends Phaser.Scene {
 				this.tweens.add({
 					targets: [rect, infoText],
 					alpha: { value: 0, duration: 2000, ease: 'power1' },
-					delay: 8000,
+					delay: 6000,
 				});
 			},
 		});

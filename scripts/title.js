@@ -171,7 +171,10 @@ class Title extends Phaser.Scene {
 			localStorage.getItem('isolation_saved_game_data'),
 		);
 		this.press.play();
-		this.scene.start('help', { origin: 'newgame', playerData: data });
+		this.scene.start('help', {
+			origin: 'continue',
+			playerData: data,
+		});
 	}
 
 	optionsMenu() {
