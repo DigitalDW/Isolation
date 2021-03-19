@@ -437,6 +437,14 @@ class Game extends Phaser.Scene {
 			)
 			.setAlpha(0);
 
+		this.events.on('oneRelativeMinute', () => {
+			infoText.text = `     Day ${this.day}\n\n${this.hour % 12}:${
+				this.minute < 10 ? '0' : ''
+			}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${
+				this.hour < 10 ? '0' : ''
+			}${this.hour}:${this.minute < 10 ? '0' : ''}${this.minute})`;
+		});
+
 		this.tweens.add({
 			targets: [rect, infoText],
 			alpha: { value: 0.8, duration: 2000, ease: 'power1' },
@@ -446,10 +454,6 @@ class Game extends Phaser.Scene {
 					targets: [rect, infoText],
 					alpha: { value: 0, duration: 2000, ease: 'power1' },
 					delay: 8000,
-					onComplete: () => {
-						rect.destroy();
-						infoText.destroy();
-					},
 				});
 			},
 		});
@@ -480,6 +484,7 @@ class Game extends Phaser.Scene {
 				this.day++;
 			}
 		}
+		this.events.emit('oneRelativeMinute');
 		console.log(`day ${this.day} : ${this.hour}:${this.minute}`);
 	}
 
