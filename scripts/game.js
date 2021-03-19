@@ -347,33 +347,6 @@ class Game extends Phaser.Scene {
 		this.physics.add.existing(this.character);
 		this.character.body.setCollideWorldBounds(true);
 
-		//###############//
-		// Add info rect //
-		//###############//
-
-		this.rect = this.add
-			.rectangle(
-				this.game.config.width / 2,
-				400,
-				this.game.config.width,
-				this.game.config.height / 5,
-				'black',
-			)
-			.setAlpha(0.8);
-
-		this.infoText = this.add.text(
-			this.game.config.width / 4,
-			360,
-			`     Day ${this.day}\n\n${this.hour % 12}:${
-				this.minute < 10 ? '0' : ''
-			}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${this.hour}:${
-				this.minute < 10 ? '0' : ''
-			}${this.minute})`,
-			{
-				font: '26px',
-			},
-		);
-
 		//#########//
 		// Overlap //
 		//#########//
@@ -405,6 +378,9 @@ class Game extends Phaser.Scene {
 		this.physics.add.collider(this.character, this.foodCabinet);
 		this.physics.add.collider(this.character, this.sink);
 		this.physics.add.collider(this.character, this.toilet);
+
+		// Add info rect
+		this.createInfoRect();
 	}
 
 	addMarkers(sound, name, starts, duration, config) {
@@ -433,6 +409,50 @@ class Game extends Phaser.Scene {
 
 	detection(_, t) {
 		this.detected = t.name;
+	}
+
+	createInfoRect() {
+		const rect = this.add
+			.rectangle(
+				this.game.config.width / 2,
+				400,
+				this.game.config.width,
+				this.game.config.height / 5,
+				'black',
+			)
+			.setAlpha(0);
+
+		const infoText = this.add
+			.text(
+				this.game.config.width / 4,
+				360,
+				`     Day ${this.day}\n\n${this.hour % 12}:${
+					this.minute < 10 ? '0' : ''
+				}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${
+					this.hour < 10 ? '0' : ''
+				}${this.hour}:${this.minute < 10 ? '0' : ''}${this.minute})`,
+				{
+					font: '26px',
+				},
+			)
+			.setAlpha(0);
+
+		this.tweens.add({
+			targets: [rect, infoText],
+			alpha: { value: 0.8, duration: 2000, ease: 'power1' },
+			delay: 0,
+			onComplete: () => {
+				this.tweens.add({
+					targets: [rect, infoText],
+					alpha: { value: 0, duration: 2000, ease: 'power1' },
+					delay: 8000,
+					onComplete: () => {
+						rect.destroy();
+						infoText.destroy();
+					},
+				});
+			},
+		});
 	}
 
 	playAnim() {
@@ -557,6 +577,7 @@ class Game extends Phaser.Scene {
 			this.characterStats.day++;
 			this.characterStats.meal = 0;
 			deviation += this.wakeUpDeviation(timing);
+			this.createInfoRect();
 		} else if (action == 'toilet') {
 			this.character.once(
 				'animationcomplete-toilet',
@@ -647,6 +668,7 @@ class Game extends Phaser.Scene {
 		}
 		this.day += this.day + 1 == currDay ? 0 : 1;
 		this.hour = 7;
+		this.minute = Math.floor(Math.random() * 60);
 		return dev;
 	}
 
@@ -818,11 +840,6 @@ class Game extends Phaser.Scene {
 
 		if (!this.music_1.isPlaying && !this.music_2.isPlaying) {
 			this.music_1.play();
-		}
-
-		if (Math.round(time / 1000) <= 30) {
-			this.rect.setAlpha(this.rect.alpha - 0.8 / (15 * 60));
-			this.infoText.setAlpha(this.infoText.alpha - 0.8 / (15 * 60));
 		}
 
 		this.sounds();
