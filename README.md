@@ -4,6 +4,8 @@
 
 You can read the [Original game specifications (in French)](http://bit.ly/LRJV2D) or read along to learn more.
 
+The game is playable [here](https://digitaldw.github.io/Isolation/pages/index.html).
+
 ## What is the game about?
 ![](assets/screenshots/main_menu.PNG)
 
