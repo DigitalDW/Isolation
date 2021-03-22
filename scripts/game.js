@@ -3,7 +3,7 @@ class Game extends Phaser.Scene {
 		super('game'); // la clef d'accès à la scène
 
 		// Game duration
-		this.duration = 24 * 60; // [x] mintues * 60
+		this.duration = (0.1 / 6) * 60; // [x] mintues * 60
 
 		// Timings
 		this.timings = {
@@ -127,6 +127,10 @@ class Game extends Phaser.Scene {
 		this.load.audio('yawns', [
 			'../assets/audio/yawns.ogg',
 			'../assets/audio/yawns.mp3',
+		]);
+		this.load.audio('door', [
+			'../assets/audio/door.ogg',
+			'../assets/audio/door.mp3',
 		]);
 	}
 
@@ -264,6 +268,8 @@ class Game extends Phaser.Scene {
 			},
 		);
 
+		this.door = this.sound.add('door').setVolume(0.33);
+
 		//#######//
 		// Music //
 		//#######//
@@ -282,6 +288,11 @@ class Game extends Phaser.Scene {
 			this.music_1.setVolume(value);
 			this.music_2.setVolume(value);
 		});
+
+		// Music on startup
+		if (!this.music_1.isPlaying && !this.music_2.isPlaying) {
+			this.music_1.play();
+		}
 
 		//############//
 		// Animations //
@@ -585,7 +596,7 @@ class Game extends Phaser.Scene {
 				'animationcomplete-toilet',
 				function () {
 					const rdm = Math.ceil(Math.random() * 10);
-					if (rdm > 2) {
+					if (rdm > 3) {
 						this.character.play('toilet');
 						this.characterAction(0, 'toilet');
 					} else {
@@ -788,27 +799,86 @@ class Game extends Phaser.Scene {
 	}
 
 	update(time) {
+		this.character.body.setVelocity(0);
+
 		if (this.character.y <= this.bed.height + 24) {
 			this.bedCollision.active = true;
 		} else {
 			this.bedCollision.active = false;
 		}
 
-		if (
-			this.seconds / 60 >= this.duration / 60 &&
-			this.elapsedTime.paused == false
-		) {
-			console.log('stop');
+		if (this.seconds / 60 >= this.duration / 60) {
+			this.keys.enabled = false;
 			this.elapsedTime.paused = true;
 			this.relativeTime.paused = true;
+
+			const currentAnim = this.character.anims.currentAnim.key;
+			if (currentAnim != 'idle' && currentAnim != 'walk') {
+				this.character.stop();
+				if (currentAnim == 'sleep') {
+					this.character.x = this.coords[0];
+					this.character.y = this.coords[1];
+				} else if (currentAnim == 'toilet') {
+					this.character.x += 75;
+				} else if (currentAnim == 'drink') {
+					this.character.x += 25;
+					if (this.bottleCap.isPlaying) this.bottleCap.stop();
+					if (this.gulps.isPlaying) this.gulps.stop();
+				}
+			}
+
+			if (!this.music_1.isPlaying || !this.music_2.isPlaying) {
+				this.music_1.stop();
+				this.music_2.stop();
+			}
+
+			if (!this.door.isPlaying) this.playAnim();
+
+			// x=225, y=250
+			if (this.character.x < 220) {
+				this.character.body.setVelocityX(100);
+				this.character.flipX = false;
+			} else if (this.character.x > 230) {
+				this.character.body.setVelocityX(-100);
+				this.character.flipX = true;
+			}
+			if (this.character.x >= 220 && this.character.x <= 230) {
+				if (this.character.y == 414.5 && !this.continue) {
+					this.character.stop();
+					this.character.setFrame(0);
+					if (!this.door.isPlaying) {
+						this.door.play();
+						this.door.once('complete', () => {
+							this.character.body.setCollideWorldBounds(false);
+							this.continue = true;
+						});
+					}
+				} else {
+					this.character.body.setVelocityY(100);
+				}
+			}
+			if (
+				this.character.y >=
+				this.game.config.height + this.character.height / 2
+			) {
+				this.scene.pause();
+				this.scene.launch('end', {
+					character: this.characterStats,
+					timeInfo: {
+						seconds: this.seconds,
+						minute: this.minute,
+						hour: this.hour,
+						day: this.day,
+						delay: this.relativeTimeDelay,
+					},
+				});
+			}
 		}
 
 		if (this.character.anims.currentAnim.key == 'drink') {
 			this.characterDrink();
 		}
 
-		// Mouvement continu
-		this.character.body.setVelocity(0);
 		this.charCircle.x = this.character.x + (this.flip ? -40 : 40);
 		this.charCircle.y = this.character.y;
 		if (this.keys.enabled) {
@@ -836,10 +906,6 @@ class Game extends Phaser.Scene {
 			} else {
 				this.character.anims.play('idle', true);
 			}
-		}
-
-		if (!this.music_1.isPlaying && !this.music_2.isPlaying) {
-			this.music_1.play();
 		}
 
 		this.sounds();
