@@ -506,9 +506,7 @@ class Game extends Phaser.Scene {
 		}
 
 		if (
-			(!this.keys.enabled &&
-				!this.characterStats.inBed &&
-				!this.characterStats.onToilet) ||
+			(!this.keys.enabled && !this.characterStats.inBed) ||
 			this.detected == null
 		) {
 			return;
@@ -536,8 +534,7 @@ class Game extends Phaser.Scene {
 			this.characterStats.inBed = !this.characterStats.inBed;
 		} else if (this.detected == 'toilet') {
 			this.characterStats.toilet++;
-			this.characterStats.onToilet = !this.characterStats.onToilet;
-			this.character.flipX = !this.character.flipX;
+			this.character.flipX = false;
 			this.character.x = 105;
 			this.character.y = 122;
 			this.character.play('toilet');
@@ -593,8 +590,6 @@ class Game extends Phaser.Scene {
 						this.characterAction(0, 'toilet');
 					} else {
 						this.keys.enabled = true;
-						this.characterStats.onToilet = !this.characterStats
-							.onToilet;
 						this.character.x += 75;
 					}
 				},
