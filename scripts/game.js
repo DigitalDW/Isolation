@@ -47,6 +47,7 @@ class Game extends Phaser.Scene {
 			openSink: false,
 			steps: 0,
 			moral: 1,
+			tap: 0,
 		};
 
 		this.elapsedTime;
@@ -563,6 +564,7 @@ class Game extends Phaser.Scene {
 			if (!this.characterStats.openSink) {
 				this.sink.play('open_faucet');
 				this.sinkSound.play('start');
+				this.characterStats.tap++;
 			} else {
 				this.sink.anims.stop();
 				this.sink.setFrame(0);

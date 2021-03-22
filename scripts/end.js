@@ -84,7 +84,7 @@ class End extends Phaser.Scene {
 		this.stepsNumberInfo = this.add
 			.text(
 				marginX +
-					395 -
+					396 -
 					(String(this.characterStats.steps).length - 1) * 10,
 				180,
 				`${this.characterStats.steps}`,
@@ -113,14 +113,32 @@ class End extends Phaser.Scene {
 			)
 			.setAlpha(0);
 
+		this.faucet = this.add
+			.text(marginX, 240, 'Tap opened:', {
+				font: '16px',
+			})
+			.setAlpha(0);
+
+		this.faucetOpened = this.add
+			.text(
+				marginX +
+					396 -
+					(String(this.characterStats.tap).length - 1) * 10,
+				240,
+				`${this.characterStats.tap}`,
+				{
+					font: '16px',
+				},
+			)
+			.setAlpha(0);
+
 		this.credits = this.add
 			.text(
 				marginX,
-				270,
+				300,
 				'Thanks for playing !' +
 					'\n\nI hope you enjoyed your time and found the \nexperience interesting.' +
-					'\n\nThe point of this game was to allow you to \nlive the experience of extreme isolation \nwithout leaving the safety and confort of \nyour home.' +
-					'\n\nI would recommended that you play again to \ntry to prevent your character from losing \ntrack of time ! Press space to quit.',
+					'\n\nI would recommended that you play again to \ntry to prevent your character from losing \ntrack of time ! \n\nPress space to quit.',
 				{
 					font: '16px',
 				},
@@ -134,8 +152,8 @@ class End extends Phaser.Scene {
 			onComplete: () => {},
 		};
 
-		const moralTween = {
-			targets: [this.moral, this.moralValue],
+		const tapTween = {
+			targets: [this.faucet, this.faucetOpened],
 			alpha: { value: 0.8, duration: 1000, ease: 'Power1' },
 			delay: 100,
 			onComplete: () => {
@@ -143,7 +161,7 @@ class End extends Phaser.Scene {
 				this.input.keyboard.once('keydown-' + 'SPACE', () => {
 					localStorage.setItem(
 						'isolation_saved_game_data',
-						JSON.stringify(this.playerData),
+						JSON.stringify(this.characterStats),
 					);
 					console.log('saved');
 					this.scene.stop('game');
@@ -152,6 +170,15 @@ class End extends Phaser.Scene {
 					this.press.play();
 					this.scene.start('title');
 				});
+			},
+		};
+
+		const moralTween = {
+			targets: [this.moral, this.moralValue],
+			alpha: { value: 0.8, duration: 1000, ease: 'Power1' },
+			delay: 100,
+			onComplete: () => {
+				this.tweens.add(tapTween);
 			},
 		};
 
