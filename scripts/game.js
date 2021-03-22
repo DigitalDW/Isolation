@@ -3,7 +3,7 @@ class Game extends Phaser.Scene {
 		super('game'); // la clef d'accès à la scène
 
 		// Game duration
-		this.duration = (0.1 / 6) * 60; // [x] mintues * 60
+		this.duration = 72 * 60; // [x] mintues * 60
 
 		// Timings
 		this.timings = {
@@ -45,6 +45,8 @@ class Game extends Phaser.Scene {
 			toilet: 2, // number of times the character was sat on the toilet. Between 2 and 3 is ideal.
 			onToilet: false,
 			openSink: false,
+			steps: 0,
+			moral: 1,
 		};
 
 		this.elapsedTime;
@@ -423,7 +425,7 @@ class Game extends Phaser.Scene {
 	}
 
 	createInfoRect() {
-		const rect = this.add
+		this.rect = this.add
 			.rectangle(
 				this.game.config.width / 2,
 				400,
@@ -433,15 +435,17 @@ class Game extends Phaser.Scene {
 			)
 			.setAlpha(0);
 
-		const infoText = this.add
+		this.infoText = this.add
 			.text(
 				this.game.config.width / 4,
 				360,
-				`     Day ${this.day}\n\n${this.hour % 12}:${
+				`     Day ${this.day}\n\n${this.hour % 12 < 10 ? '0' : ''}${
+					this.hour % 12
+				}:${this.minute < 10 ? '0' : ''}${this.minute}${
+					this.hour > 12 ? 'PM' : 'AM'
+				} (${this.hour < 10 ? '0' : ''}${this.hour}:${
 					this.minute < 10 ? '0' : ''
-				}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${
-					this.hour < 10 ? '0' : ''
-				}${this.hour}:${this.minute < 10 ? '0' : ''}${this.minute})`,
+				}${this.minute})`,
 				{
 					font: '26px',
 				},
@@ -449,20 +453,22 @@ class Game extends Phaser.Scene {
 			.setAlpha(0);
 
 		this.events.on('oneRelativeMinute', () => {
-			infoText.text = `     Day ${this.day}\n\n${this.hour % 12}:${
-				this.minute < 10 ? '0' : ''
-			}${this.minute}${this.hour > 12 ? 'PM' : 'AM'} (${
-				this.hour < 10 ? '0' : ''
-			}${this.hour}:${this.minute < 10 ? '0' : ''}${this.minute})`;
+			this.infoText.text = `     Day ${this.day}\n\n${
+				this.hour % 12 < 10 ? '0' : ''
+			}${this.hour % 12}:${this.minute < 10 ? '0' : ''}${
+				this.minute
+			}${this.hour > 12 ? 'PM' : 'AM'} (${this.hour < 10 ? '0' : ''}${
+				this.hour
+			}:${this.minute < 10 ? '0' : ''}${this.minute})`;
 		});
 
 		this.tweens.add({
-			targets: [rect, infoText],
+			targets: [this.rect, this.infoText],
 			alpha: { value: 0.8, duration: 2000, ease: 'power1' },
 			delay: 0,
 			onComplete: () => {
 				this.tweens.add({
-					targets: [rect, infoText],
+					targets: [this.rect, this.infoText],
 					alpha: { value: 0, duration: 2000, ease: 'power1' },
 					delay: 6000,
 				});
@@ -478,6 +484,7 @@ class Game extends Phaser.Scene {
 			!this.footsteps.isPlaying
 		) {
 			this.footsteps.play(`step_${Math.ceil(Math.random() * 5)}`);
+			this.characterStats.steps++;
 		}
 	}
 
@@ -496,6 +503,7 @@ class Game extends Phaser.Scene {
 			}
 		}
 		this.events.emit('oneRelativeMinute');
+		this.characterStats.moral -= 1 / (this.duration * 4);
 		console.log(`day ${this.day} : ${this.hour}:${this.minute}`);
 	}
 
@@ -672,10 +680,13 @@ class Game extends Phaser.Scene {
 		let dev = 0;
 		if (this.hour < timing.start && this.day == day) {
 			dev -= this.timeDeviation(timing, 'early') * 20;
+			this.characterStats.moral -= 0.025;
 		} else if (this.hour >= timing.end && this.day == day) {
 			dev += this.timeDeviation(timing, 'late') * 10;
+			this.characterStats.moral -= 0.0125;
 		} else {
 			dev -= this.timeDeviation(timing, 'special') * 30;
+			this.characterStats.moral -= 0.05;
 		}
 		this.day += this.day + 1 == currDay ? 0 : 1;
 		this.hour = 7;
@@ -812,6 +823,18 @@ class Game extends Phaser.Scene {
 			this.elapsedTime.paused = true;
 			this.relativeTime.paused = true;
 
+			this.scene.pause();
+			this.scene.launch('end', {
+				character: this.characterStats,
+				timeInfo: {
+					seconds: this.seconds,
+					minute: this.minute,
+					hour: this.hour,
+					day: this.day,
+					delay: this.relativeTimeDelay,
+				},
+			});
+
 			const currentAnim = this.character.anims.currentAnim.key;
 			if (currentAnim != 'idle' && currentAnim != 'walk') {
 				this.character.stop();
@@ -861,6 +884,8 @@ class Game extends Phaser.Scene {
 				this.character.y >=
 				this.game.config.height + this.character.height / 2
 			) {
+				this.rect.destroy();
+				this.infoText.destroy();
 				this.scene.pause();
 				this.scene.launch('end', {
 					character: this.characterStats,
