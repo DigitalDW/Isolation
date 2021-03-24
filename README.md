@@ -24,6 +24,8 @@ The game wants to emulate the isolation Stevens lives in the video. The room was
 5. Eating and going to bed early or late WILL accelerate or decelerate the character's perception of time.
 6. The character's moral descreases over time (about 1 / (1/4th of the game's duration in seconds)) but WILL decrease faster if the character's perception of time accelerates.
 
+You will be told the time when you enter a new game or load a saved game. You will also be told the time when you wake up.
+
 These should be the guiding rules for a proper handling of the game's mecanics.
 
 ![](assets/screenshots/help_screen.PNG)
