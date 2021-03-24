@@ -2,7 +2,7 @@
 
 ### **Isolation** is a video game developped in the context of [Isaac Pante](https://github.com/ipante)'s class "[développement de jeu vidéo 2D](https://github.com/ipante/ressources_cours_jeux_video_2D)."
 
-You can read the [Original game specifications (in French)](http://bit.ly/LRJV2D) or read along to learn more.
+You can read the [Original game specifications (old, in French)](http://bit.ly/LRJV2D) or read along to learn more.
 
 The game is playable [here](https://digitaldw.github.io/Isolation/pages/index.html).
 
