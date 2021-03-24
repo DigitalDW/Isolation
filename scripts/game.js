@@ -25,10 +25,6 @@ class Game extends Phaser.Scene {
 				start: 22,
 				end: 0,
 			},
-			wakeUp: {
-				start: 7,
-				end: 8,
-			},
 		};
 
 		// Time variables
@@ -544,9 +540,7 @@ class Game extends Phaser.Scene {
 				: { start: this.hour + 1, end: this.hour + 2 };
 			this.characterAction(timing, 'eat');
 		} else if (this.detected == 'bed') {
-			timing = this.characterStats.inBed
-				? this.timings.wakeUp
-				: this.timings.goToSleep;
+			timing = this.characterStats.inBed ? 0 : this.timings.goToSleep;
 			this.characterAction(
 				timing,
 				this.characterStats.inBed ? 'wakeUp' : 'goToSleep',
@@ -598,8 +592,10 @@ class Game extends Phaser.Scene {
 			this.character.x = this.coords[0];
 			this.character.y = this.coords[1];
 			this.characterStats.day++;
+			this.day++;
+			this.hour = 7;
+			this.minute = Math.floor(Math.random() * 60);
 			this.characterStats.meal = 0;
-			deviation += this.wakeUpDeviation(timing);
 			this.createInfoRect();
 		} else if (action == 'toilet') {
 			this.character.once(
@@ -628,13 +624,16 @@ class Game extends Phaser.Scene {
 			if (!this.characterStats.openSink) {
 				this.sinkSound.once(
 					'complete',
-					function () {
-						this.sinkSound.play('flow');
-					},
+					() => this.sinkSound.play('flow'),
 					this,
 				);
 			} else {
 				this.sinkSound.play('end');
+				this.sinkSound.once(
+					'complete',
+					() => this.sinkSound.stop(),
+					this,
+				);
 			}
 
 			this.characterStats.openSink = !this.characterStats.openSink;
@@ -673,26 +672,6 @@ class Game extends Phaser.Scene {
 		} else if (this.hour >= timing.end && this.day > day) {
 			dev += this.timeDeviation(timing, 'late') * 25;
 		}
-		return dev;
-	}
-
-	wakeUpDeviation(timing) {
-		const currDay = this.day;
-		const day = this.characterStats.day;
-		let dev = 0;
-		if (this.hour < timing.start && this.day == day) {
-			dev -= this.timeDeviation(timing, 'early') * 20;
-			this.characterStats.moral -= 0.025;
-		} else if (this.hour >= timing.end && this.day == day) {
-			dev += this.timeDeviation(timing, 'late') * 10;
-			this.characterStats.moral -= 0.0125;
-		} else {
-			dev -= this.timeDeviation(timing, 'special') * 30;
-			this.characterStats.moral -= 0.05;
-		}
-		this.day += this.day + 1 == currDay ? 0 : 1;
-		this.hour = 7;
-		this.minute = Math.floor(Math.random() * 60);
 		return dev;
 	}
 
@@ -797,7 +776,10 @@ class Game extends Phaser.Scene {
 
 	playYawn() {
 		this.yawns.play(`yawn_${Math.ceil(Math.random() * 5)}`);
-		if (this.character.anims.isPlaying) {
+		if (
+			this.character.anims.isPlaying &&
+			this.character.anims.currentAnim.key != 'drink'
+		) {
 			this.character.anims.stop();
 			this.character.setFrame(0);
 			this.keys.enabled = false;
