@@ -3,7 +3,7 @@ class Game extends Phaser.Scene {
     super('game'); // la clef d'accès à la scène
 
     // Game duration
-    this.duration = 72 * 60; // [x] mintues * 60
+    this.duration = 24 * 60; // [x] mintues * 60
 
     // Timings
     this.timings = {
@@ -30,7 +30,7 @@ class Game extends Phaser.Scene {
     // Time variables
     this.seconds = 0;
     this.minute = 0;
-    this.hour = 15; // starting hour
+    this.hour = 10; // starting hour
     this.day = 1;
 
     // Character stats
