@@ -526,15 +526,11 @@ class Game extends Phaser.Scene {
         : { start: this.hour + 1, end: this.hour + 2 };
       this.characterAction(timing, 'eat');
     } else if (this.detected == 'bed') {
-      const meal = this.characterStats.meal;
       timing = this.characterStats.inBed ? 0 : this.timings.goToSleep;
-      if (!(meal > 2) && !this.characterStats.inBed) {
-        console.log('go to bed');
-        this.characterAction(timing, 'goToSleep');
-      } else if (this.characterStats.inBed) {
-        this.characterAction(timing, 'wakeUp');
-      }
-
+      this.characterAction(
+        timing,
+        this.characterStats.inBed ? 'wakeUp' : 'goToSleep'
+      );
       this.characterStats.inBed = !this.characterStats.inBed;
     } else if (this.detected == 'toilet') {
       this.characterStats.toilet++;
@@ -582,9 +578,7 @@ class Game extends Phaser.Scene {
       this.character.x = this.coords[0];
       this.character.y = this.coords[1];
       this.characterStats.day++;
-      if (this.characterStats.day != this.day) {
-        this.day = this.characterStats.day;
-      }
+      this.day++;
       this.hour = 7;
       this.minute = Math.floor(Math.random() * 60);
       this.characterStats.meal = 0;
