@@ -578,7 +578,9 @@ class Game extends Phaser.Scene {
       this.character.x = this.coords[0];
       this.character.y = this.coords[1];
       this.characterStats.day++;
-      this.day++;
+      if (this.characterStats.day != this.day) {
+        this.day = this.characterStats.day;
+      }
       this.hour = 7;
       this.minute = Math.floor(Math.random() * 60);
       this.characterStats.meal = 0;
