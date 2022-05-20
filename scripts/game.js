@@ -3,7 +3,7 @@ class Game extends Phaser.Scene {
     super('game'); // la clef d'accès à la scène
 
     // Game duration
-    this.duration = 72 * 60; // [x] mintues * 60
+    this.duration = 24 * 60; // [x] mintues * 60
 
     // Timings
     this.timings = {
