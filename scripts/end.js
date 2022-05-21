@@ -49,7 +49,7 @@ class End extends Phaser.Scene {
 			.setAlpha(0);
 
 		this.realTimeInfo = this.add
-			.text(marginX + 195, 120, 'Day 3, 03:00PM (15:00)', {
+			.text(marginX + 195, 120, 'Day 2, 03:00PM (15:00)', {
 				font: '16px',
 			})
 			.setAlpha(0);
